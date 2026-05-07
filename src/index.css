@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-teal: #92B0A9;
+  --color-teal-lt: #DEE7E5;
+  --color-teal-dk: #5D726D;
+  
+  --color-orange: #FFB380;
+  --color-orange-lt: #FFF0E6;
+  --color-orange-dk: #CC8F66;
+  
+  --color-blue: #8FB8ED;
+  --color-blue-lt: #E9F1FC;
+  --color-blue-dk: #5C7DA6;
+  
+  --color-amber: #E6B38A;
+  --color-amber-lt: #F7EFEC;
+  --color-amber-dk: #8A644D;
+  
+  --color-green: #A3B9A8;
+  --color-green-lt: #EEF3EF;
+  --color-green-dk: #6B7B6E;
+  
+  --color-red: #D69E9E;
+  --color-red-lt: #F9EFEF;
+  --color-red-dk: #8E5A5A;
+  
+  --color-purple: #B2B0D6;
+  --color-purple-lt: #F2F1F9;
+  --color-purple-dk: #6D6B90;
+
+  --color-surface: #F9F9F8;
+  --color-base: #333333;
+
+  --radius-xl: 12px;
+  --radius-lg: 8px;
+  --radius-full: 99px;
+
+  --font-sans: "Poppins", system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-surface text-base font-sans antialiased;
+  }
+
+  /* Custom Scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  .custom-scrollbar-navy::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar-navy::-webkit-scrollbar-track {
+    background: #0E1A35;
+  }
+  .custom-scrollbar-navy::-webkit-scrollbar-thumb {
+    background: #2D3E64;
+    border-radius: 10px;
+  }
+  .custom-scrollbar-navy::-webkit-scrollbar-thumb:hover {
+    background: #4A6490;
+  }
+}
