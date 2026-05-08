@@ -64,7 +64,7 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
   throw new Error(errorJson);
 }
 
-const COLLECTION_PATH = 'unified_cases';
+const COLLECTION_PATH = 'zhdun_submissions';
 
 export const unifiedService = {
   async saveCase(caseData: UnifiedCase) {

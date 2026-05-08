@@ -18,9 +18,9 @@
     }
   },
   "firestore": {
-    "/unified_cases/{caseId}": {
+    "/zhdun_submissions/{caseId}": {
       "schema": "UnifiedCase",
-      "description": "Collection of all intake initiatives"
+      "description": "Collection of all ZHDUN intake submissions (v3)"
     }
   }
 }

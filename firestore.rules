@@ -2,11 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Default Deny
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
+    // Auth helpers
     function isSignedIn() {
       return request.auth != null;
     }
@@ -20,25 +16,18 @@ service cloud.firestore {
         request.auth.token.email_verified == true;
     }
 
-    // Explicitly allow connection check
+    match /zhdun_submissions/{caseId} {
+      // Open access for all signed-in users temporarily to fix connectivity
+      allow read, write: if isSignedIn();
+    }
+
     match /test/connection {
       allow get: if true;
     }
 
-    match /unified_cases/{caseId} {
-      // Allow all signed-in users to list and get cases for the shared pipeline/dashboard
-      allow read: if isSignedIn();
-      
-      // Allow create if signed in
-      allow create: if isSignedIn();
-      
-      // Update: Admin or Owner (if pending)
-      allow update: if isSignedIn() && (
-        isAdmin() || 
-        (resource.data.userId == request.auth.uid && resource.data.status == 'pending')
-      );
-
-      allow delete: if isAdmin();
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

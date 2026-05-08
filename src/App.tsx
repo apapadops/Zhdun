@@ -54,6 +54,7 @@ import {
   UnifiedCase, 
   ProjectStatus, 
   ProjectDecision, 
+  AIDecision,
   TshirtSize, 
   Message, 
   CaseType 
@@ -73,17 +74,79 @@ const ADMIN_EMAILS = [
 
 // --- HELPERS ---
 
+interface QuickReplyProps {
+  options: string[];
+  multiSelect: boolean;
+  onSelect: (value: string) => void;
+  onMultiConfirm?: (values: string[]) => void;
+}
+
+function QuickReplyChips({ options, multiSelect, onSelect, onMultiConfirm }: QuickReplyProps) {
+  const [selected, setSelected] = useState<string[]>([]);
+
+  if (!multiSelect) {
+    return (
+      <div className="flex flex-wrap gap-2 mt-3 ml-12">
+        {options.map(opt => (
+          <motion.button
+            key={opt}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => onSelect(opt)}
+            className="px-4 py-2 rounded-pill bg-white border border-indigo/30 text-indigo text-[10px] font-bold 
+                       hover:bg-indigo hover:text-white hover:border-indigo transition-standard shadow-sm uppercase tracking-wider"
+          >
+            {opt}
+          </motion.button>
+        ))}
+      </div>
+    );
+  }
+
+  // Multi-select variant
+  return (
+    <div className="mt-3 ml-12">
+      <div className="flex flex-wrap gap-2 mb-3">
+        {options.map(opt => (
+          <motion.button
+            key={opt}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setSelected(prev =>
+              prev.includes(opt) ? prev.filter(x => x !== opt) : [...prev, opt]
+            )}
+            className={`px-4 py-2 rounded-pill text-[10px] font-bold transition-standard shadow-sm border uppercase tracking-wider
+              ${selected.includes(opt)
+                ? 'bg-indigo text-white border-indigo'
+                : 'bg-white border-indigo/30 text-indigo hover:bg-indigo/10'}`}
+          >
+            {opt}
+          </motion.button>
+        ))}
+      </div>
+      {selected.length > 0 && (
+        <button
+          onClick={() => onMultiConfirm?.(selected)}
+          className="px-6 py-2 bg-navy text-white rounded-pill text-[9px] font-bold uppercase tracking-[0.2em] shadow-md hover:bg-indigo transition-standard"
+        >
+          Confirm ({selected.length} selected)
+        </button>
+      )}
+    </div>
+  );
+}
+
 const formatCurrency = (val: string | number) => {
   const num = typeof val === 'string' ? parseFloat(val) : val;
   return new Intl.NumberFormat('en-EU', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(num);
 };
 
-const getStatusColor = (status: ProjectStatus, decision: ProjectDecision | null) => {
+const getStatusColor = (status: ProjectStatus, decision: ProjectDecision | AIDecision | null) => {
   if (status === ProjectStatus.PENDING) return 'gold';
   if (status === ProjectStatus.REVIEW) return 'indigo';
-  if (decision === ProjectDecision.GO) return 'success';
-  if (decision === ProjectDecision.NOGO) return 'danger';
-  if (decision === ProjectDecision.HOLD) return 'gold';
+  if (decision === ProjectDecision.GO || decision === AIDecision.APPROVED) return 'success';
+  if (decision === ProjectDecision.NOGO || decision === AIDecision.REJECTED) return 'danger';
+  if (decision === ProjectDecision.HOLD || decision === AIDecision.NEEDS_INFO) return 'gold';
   return 'grey';
 };
 
@@ -167,28 +230,28 @@ const BigBetBadge = ({ driver }: { driver: string }) => {
 function MySubmissionsModule({ cases }: { cases: UnifiedCase[] }) {
   if (cases.length === 0) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-center py-20 bg-white rounded-card border-2 border-dashed border-grey-100">
-        <div className="w-16 h-16 bg-grey-50 rounded-pill flex items-center justify-center text-grey-200 mb-6">
+      <div className="h-full flex flex-col items-center justify-center text-center py-20 bg-white rounded-card border-2 border-dashed border-grey-100 font-sans">
+        <div className="w-16 h-16 bg-grey-50 rounded-pill flex items-center justify-center text-grey-200 mb-6 shadow-tiny">
           <ClipboardList size={32} />
         </div>
-        <h3 className="text-xl font-bold mb-2 italic">No Submissions Yet</h3>
+        <h3 className="text-xl font-bold mb-2 italic text-navy">No Submissions Yet</h3>
         <p className="text-grey-400 font-medium max-w-sm">Use the Intake Wizard to start your first transformation or AI initiative.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 h-full flex flex-col">
+    <div className="space-y-8 h-full flex flex-col font-sans">
       <div className="flex items-center justify-between">
         <div>
-           <h2 className="text-3xl font-bold tracking-tight italic">My Initiatives</h2>
-           <p className="text-grey-400 font-medium mt-1">Tracking {cases.length} active submissions</p>
+           <h2 className="text-3xl font-bold tracking-tight italic text-navy">My Initiatives</h2>
+           <p className="text-grey-400 font-medium mt-1">Tracking {cases.length} active nodes</p>
         </div>
         <div className="flex items-center gap-3">
-           <div className="flex bg-grey-100 p-1 rounded-pill border border-grey-200">
+           <div className="flex bg-grey-100 p-1 rounded-pill border border-grey-200 shadow-tiny">
              <button className="px-4 py-1.5 rounded-pill bg-white text-[10px] font-bold uppercase tracking-wider text-navy shadow-sm">All</button>
-             <button className="px-4 py-1.5 rounded-pill text-[10px] font-bold uppercase tracking-wider text-grey-400 hover:text-navy">Active</button>
-             <button className="px-4 py-1.5 rounded-pill text-[10px] font-bold uppercase tracking-wider text-grey-400 hover:text-navy">Decided</button>
+             <button className="px-4 py-1.5 rounded-pill text-[10px] font-bold uppercase tracking-wider text-grey-400 hover:text-navy transition-standard">Active</button>
+             <button className="px-4 py-1.5 rounded-pill text-[10px] font-bold uppercase tracking-wider text-grey-400 hover:text-navy transition-standard">Decided</button>
            </div>
         </div>
       </div>
@@ -199,33 +262,48 @@ function MySubmissionsModule({ cases }: { cases: UnifiedCase[] }) {
              key={c.id} 
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
-             className="bg-white rounded-card border border-grey-100 p-6 shadow-sm-kaizen hover:shadow-md-kaizen transition-standard group cursor-pointer border-l-4 border-l-indigo"
+             className="bg-white rounded-card border border-grey-100 p-6 shadow-sm-kaizen hover:shadow-md-kaizen transition-standard group cursor-pointer border-l-4 border-l-indigo relative overflow-hidden"
           >
              <div className="flex justify-between items-start mb-6">
                 <Badge color={c.case_type === CaseType.AI ? 'gold' : c.case_type === CaseType.HYBRID ? 'indigo' : 'sage'}>{c.case_type}</Badge>
                 <div className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-${getStatusColor(c.status, c.decision)}`}>
                    <div className={`w-2 h-2 rounded-pill bg-current animate-pulse`} />
-                   {c.status}
+                   {c.decision ? c.decision.replace(/_/g, ' ') : c.status}
                 </div>
              </div>
 
              <h4 className="font-bold text-lg text-navy mb-3 group-hover:text-indigo transition-standard italic line-clamp-1">{c.project_title}</h4>
-             <p className="text-xs text-grey-400 font-medium mb-6 line-clamp-2 italic leading-relaxed">"{c.problem_statement}"</p>
+             <p className="text-xs text-grey-400 font-medium mb-6 line-clamp-3 italic leading-relaxed h-[4.5em]">
+               "{c.case_type === CaseType.AI ? (c.initiative_description || c.problem_statement) : c.problem_statement}"
+             </p>
 
              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-grey-50">
                 <div>
-                   <p className="text-[8px] font-bold text-grey-300 uppercase tracking-wider mb-1">Tier / Size</p>
-                   <p className="text-[11px] font-bold text-navy uppercase tabular-nums">{c.tier} / {c.tshirt}</p>
+                   <p className="text-[8px] font-bold text-grey-300 uppercase tracking-wider mb-1">
+                     {c.case_type === CaseType.AI ? 'Risk Level' : 'Tier / Size'}
+                   </p>
+                   <p className="text-[11px] font-bold text-navy uppercase tabular-nums">
+                     {c.case_type === CaseType.AI ? (c.tier === 'T3' ? 'High' : c.tier === 'T2' ? 'Medium' : 'Low') : `${c.tier} / ${c.tshirt}`}
+                   </p>
                 </div>
                 <div>
                    <p className="text-[8px] font-bold text-grey-300 uppercase tracking-wider mb-1">Benefit Est.</p>
-                   <p className="text-[11px] font-bold text-navy italic tabular-nums">{formatCurrency(c.annual_fte_cost)}</p>
+                   <p className="text-[11px] font-bold text-navy italic tabular-nums">
+                     {c.case_type === CaseType.AI ? 'N/A' : formatCurrency(c.annual_fte_cost || 0)}
+                   </p>
                 </div>
                 <div className="col-span-2 pt-2">
                    <p className="text-[8px] font-bold text-grey-300 uppercase tracking-wider mb-2">Strategy</p>
                    <BigBetBadge driver={c.strategic_driver || ''} />
                 </div>
              </div>
+             
+             {c.next_review_date && (
+               <div className="mt-4 pt-4 border-t border-grey-50 flex items-center gap-2">
+                 <Clock size={10} className="text-indigo" />
+                 <span className="text-[9px] font-bold text-indigo uppercase tracking-wider">Next Review: {c.next_review_date}</span>
+               </div>
+             )}
           </motion.div>
         ))}
       </div>
@@ -253,10 +331,10 @@ export default function App() {
 
   useEffect(() => {
     if (!user) return;
-    // Real-time synchronization with Firestore
-    const unsubscribe = unifiedService.subscribeToAllCases((syncedCases) => {
-      setCases(syncedCases);
-    });
+    const isAdmin = ADMIN_EMAILS.includes(user.email || '');
+    const unsubscribe = isAdmin
+      ? unifiedService.subscribeToAllCases(setCases)
+      : unifiedService.subscribeToMyCases(setCases);
     return () => unsubscribe();
   }, [user]);
 
@@ -476,6 +554,17 @@ export default function App() {
     );
   }
 
+  const isAdmin = ADMIN_EMAILS.includes(user?.email || '');
+
+  const tabs = [
+    { id: 'wizard', label: 'Intake', icon: MessageSquare },
+    { id: 'submissions', label: 'My Submissions', icon: ClipboardList },
+    ...(isAdmin ? [
+      { id: 'pipeline', label: 'Pipeline', icon: Trello },
+      { id: 'dashboard', label: 'Insights', icon: LayoutDashboard }
+    ] : [])
+  ];
+
   return (
     <div className="min-h-screen bg-cream flex flex-col font-sans">
       {/* Header */}
@@ -493,12 +582,7 @@ export default function App() {
         </div>
 
         <nav className="flex gap-1.5 bg-grey-100/50 p-1.5 rounded-pill border border-grey-200/50 overflow-x-auto scrollbar-hide max-w-[50%] md:max-w-none">
-          {[
-            { id: 'wizard', label: 'Intake', icon: MessageSquare },
-            { id: 'submissions', label: 'My Submissions', icon: ClipboardList },
-            { id: 'pipeline', label: 'Pipeline', icon: Trello },
-            { id: 'dashboard', label: 'Insights', icon: LayoutDashboard }
-          ].map(tab => (
+          {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
@@ -614,27 +698,100 @@ function IntakeWizard({ user, onCaseSubmit }: { user: any, onCaseSubmit: (c: Uni
   const [isTyping, setIsTyping] = useState(false);
   const [completedCase, setCompletedCase] = useState<Partial<UnifiedCase> | null>(null);
   const [candidateData, setCandidateData] = useState<Partial<UnifiedCase>>({});
+  const [currentChoices, setCurrentChoices] = useState<{type:'single'|'multi', field:string, options:string[]} | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const WIZARD_PROMPT = `
-You are ZHDUN, the specialized transformation architect for Kaizen Gaming. Conduct a friendly yet high-precision conversational interview to intake a new initiative.
+You are ZHDUN, the strategic intake specialist for Kaizen Gaming's Transformation team.
+Your job: conduct a warm, precise conversational interview to intake a new initiative.
+Speak naturally. Never use bullet lists. One question at a time. Max 2-3 short sentences per message.
 
-CRITICAL RULES:
-1. Classification: Silently determine if the request is a "PROJECT" (Ops/Process), "AI" (Pure LLM/GenAI), or "HYBRID" (Process + AI).
-2. Adaptivity: If AI or HYBRID, you MUST ask: "Is external data being sent to the LLM?", "Which model are you thinking of?", and "Who are the data subjects?".
-3. Calm Persona: One question at a time. Max 2-3 sentences. No bullets.
-4. Operational Signals: Always include STATE:{} at the end of your message. If the case is finished, include CASE_COMPLETE:{} at the end. These are technical markers and MUST NOT be part of your conversational text.
+─── CORE BEHAVIOR (CRITICAL) ───
+- DATA INTEGRITY: You MUST capture accurate and complete information. If a user provides vague, incorrect, or incomplete data, or refuses to provide information (e.g., "I won't give you this"), you MUST insist politely and explain why that data is critical for the initiative's success in the pipeline.
+- GUIDANCE: If a user isn't sure what to write or how to define their initiative, you MUST proactively offer help, examples, or suggestions based on common Kaizen transformation patterns (e.g., automation of manual reporting, LLM-based customer support, process streamlining).
+- PERSISTENCE: Do not allow the user to skip essential fields. If they try to bypass a question, reiterate its importance and help them formulate an answer.
 
-Salaries (multiplier 1.35):
+─── CLASSIFICATION (SILENT) ───
+On the first message, determine intake type based on the user's initial selection or description:
+- PROJECT: operational / process / automation initiative (no AI/LLM)
+- AI: pure AI/LLM/GenAI initiative  
+- HYBRID: process improvement that includes an AI component
+
+Never mention PROJECT/AI/HYBRID or T1/T2/T3 to the user. These are internal only.
+
+─── TIER SCORING (SILENT, AI CASES ONLY) ───
+Maintain a running tier_score (0–20) as you learn about an AI initiative.
+Add points as follows:
++4 if external/3rd-party LLM (not internal model)
++3 if customer-facing (not internal-only users)
++3 if any PII data involved
++3 if financial or regulated data involved
++2 if health/sensitive data involved
++2 if integrated with production systems
++2 if used in regulated process (AML, KYC, responsible gambling)
++1 if >100 users in scope
+
+Tier mapping: 0-5 = T1, 6-12 = T2, 13-20 = T3
+CRITICAL: If tier_score >= 6 (T2 or T3), you MUST ask about expected_benefits before closing.
+Never tell the user their tier.
+
+─── FIELD CHECKLIST ───
+For PROJECT intake, capture ALL of:
+project_title, requestor_department, markets_affected, problem_statement, expected_outcome,
+volume_per_month (numeric), hours_per_case (numeric), team_profile, duration, teams_involved,
+soft_benefits, strategic_driver, deadline
+
+For AI intake, capture ALL of:
+initiative_title (maps to project_title), requestor_department, initiative_description,
+expected_outcome, use_type, intended_purpose, users_scope, markets_affected, data_types,
+ai_tool, system_integrations, additional_context (ask at end: "Anything else to add?"),
+expected_benefits (ONLY if tier_score >= 6)
+
+─── COMPUTED FIELDS (DO SILENTLY, INCLUDE IN CASE_COMPLETE) ───
+annual_hours = volume_per_month × hours_per_case × 12
+annual_fte_cost = annual_hours × hourly_rate (use salary table below × 1.35 burden)
+fte_saving_est = annual_hours / 1720
+
+Salary table (annual base):
 - GR/CY/MT: Jr 20k, Mid 30k, Sr 45k, Mgr 60k
 - EE (RO/BG/CZ): Jr 15k, Mid 22k, Sr 35k, Mgr 50k
 - WE (UK/DE/DK): Jr 28k, Mid 42k, Sr 60k, Mgr 80k
 - LATAM (BR/MX/AR): Jr 12k, Mid 18k, Sr 28k, Mgr 40k
 
-Fields JSON structure for CASE_COMPLETE:
+T-shirt size: S = <500 annual_hours, M = 500-2000, L = 2000-5000, XL = >5000
+
+Strategic driver mapping (ask user to pick one, show as choices):
+"Hey Betano" = AI Transformation
+"Shield Betano" = Risk & Governance  
+"Betano Republic" = Market Expansion
+"Core Betano" = Operational Excellence
+
+─── CHOICES SIGNAL ───
+When a field has predefined options, ALWAYS include a CHOICES signal after your question.
+The user will see clickable buttons — do NOT list the options in your text.
+
+Format: CHOICES:{"type":"single"|"multi","field":"fieldname","options":["Option1","Option2"...]}
+
+Use CHOICES for:
+- markets_affected → CHOICES:{"type":"multi","field":"markets_affected","options":["Greece","Cyprus","Malta","Bulgaria","Romania","Czech Republic","United Kingdom","Germany","Denmark","Brazil","Mexico","Argentina","All Markets"]}
+- strategic_driver → CHOICES:{"type":"single","field":"strategic_driver","options":["Hey Betano","Shield Betano","Betano Republic","Core Betano"]}
+- use_type → CHOICES:{"type":"single","field":"use_type","options":["Internal Staff Only","Customer-Facing","Both"]}
+- data_types → CHOICES:{"type":"multi","field":"data_types","options":["Personal / PII","Financial Data","Behavioral / Clickstream","Health / Sensitive","Proprietary Business Data","No Sensitive Data"]}
+- ai_tool → CHOICES:{"type":"single","field":"ai_tool","options":["ChatGPT / GPT-4","Claude / Anthropic","Gemini","Internal / Custom Model","Other"]}
+- users_scope → CHOICES:{"type":"single","field":"users_scope","options":["Internal Staff Only","Our Customers","Both Internal & Customers"]}
+- team_profile → CHOICES:{"type":"single","field":"team_profile","options":["Junior-heavy","Mixed Team","Senior-heavy","Management Level"]}
+- duration → CHOICES:{"type":"single","field":"duration","options":["Under 1 month","1–3 months","3–6 months","6–12 months","Over 12 months"]}
+- intended_purpose → CHOICES:{"type":"single","field":"intended_purpose","options":["Content Generation","Decision Support","Data Analysis","Process Automation","Customer Service / Chatbot","Risk & Compliance","Other"]}
+
+─── SIGNALS ───
+Always append STATE:{<partial fields>} to every message (hidden from user).
+When all fields are captured, append CASE_COMPLETE:{<full JSON>} and say something like:
+"Great — I've captured everything I need. Please review the summary below and submit when ready."
+
+CASE_COMPLETE JSON for PROJECT:
 {
   "project_title": "",
-  "case_type": "PROJECT | AI | HYBRID",
+  "case_type": "project",
   "requestor_department": "",
   "problem_statement": "",
   "expected_outcome": "",
@@ -642,28 +799,64 @@ Fields JSON structure for CASE_COMPLETE:
   "volume_per_month": 0,
   "hours_per_case": 0,
   "team_profile": "",
+  "duration": "",
+  "teams_involved": "",
+  "soft_benefits": "",
+  "strategic_driver": "",
+  "deadline": "",
   "annual_fte_cost": 0,
   "annual_hours": 0,
-  "strategic_driver": "Hey Betano | Shield Betano | Betano Republic | Core Betano",
-  "tier": "T1..T3",
-  "tshirt": "S..XL",
-  "ai_model_name": "",
-  "ai_is_external_data": false,
-  "ai_data_subjects": ""
+  "fte_saving_est": 0,
+  "tier": "T1|T2|T3",
+  "tshirt": "S|M|L|XL",
+  "flags": []
 }
 
-Output STATE:{"field":Val} after every message.
-Output CASE_COMPLETE:{} when finished.
-  `.trim();
+CASE_COMPLETE JSON for AI:
+{
+  "project_title": "",
+  "case_type": "ai",
+  "requestor_department": "",
+  "initiative_description": "",
+  "expected_outcome": "",
+  "use_type": "",
+  "intended_purpose": "",
+  "users_scope": "",
+  "markets_affected": "",
+  "data_types": "",
+  "ai_tool": "",
+  "ai_model_name": "",
+  "ai_is_external_data": false,
+  "ai_data_subjects": "",
+  "system_integrations": "",
+  "additional_context": "",
+  "expected_benefits": "",
+  "strategic_driver": "",
+  "tier": "T1|T2|T3",
+  "tier_score": 0,
+  "flags": [],
+  "tshirt": "S"
+}
+`.trim();
+
+  useEffect(() => {
+    if (history.length === 1 && !currentChoices) {
+      setCurrentChoices({
+        type: 'single',
+        field: 'initial_classification',
+        options: ['AI initiative', 'Optimization Project', 'Not sure']
+      });
+    }
+  }, []);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [history]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isTyping) return;
+  const handleSendValue = async (value: string) => {
+    if (!value.trim() || isTyping) return;
 
-    const userMessage: Message = { role: 'user', content: input };
+    const userMessage: Message = { role: 'user', content: value };
     setHistory(prev => [...prev, userMessage]);
     setInput('');
     setIsTyping(true);
@@ -694,10 +887,24 @@ Output CASE_COMPLETE:{} when finished.
         }
       }
 
+      // Extract choices signal if present
+      const choicesMatch = response.match(/CHOICES:\s*(\{[\s\S]*?\})/);
+      if (choicesMatch) {
+        try {
+          const choicesData = JSON.parse(choicesMatch[1]);
+          setCurrentChoices(choicesData);
+        } catch (e) {
+          console.error("Choices parse err", e);
+        }
+      } else {
+        setCurrentChoices(null);
+      }
+
       // Clean the response for display - removing all operational signals and raw JSON blocks
       let cleanResponse = response
         .replace(/CASE_COMPLETE:\s*\{[\s\S]*?\}/g, '')
         .replace(/STATE:\s*\{[\s\S]*?\}/g, '')
+        .replace(/CHOICES:\s*\{[\s\S]*?\}/g, '')
         .replace(/```json[\s\S]*?```/g, '')
         .replace(/```[\s\S]*?```/g, '')
         // Catch any stray JSON-like blocks at the end or middle
@@ -717,6 +924,8 @@ Output CASE_COMPLETE:{} when finished.
     }
   };
 
+  const handleSend = () => handleSendValue(input);
+
   const submitToPipeline = () => {
     if (!completedCase) return;
 
@@ -730,20 +939,21 @@ Output CASE_COMPLETE:{} when finished.
     const finalCase: UnifiedCase = {
       ...completedCase as UnifiedCase,
       id: Date.now().toString(),
+      userId: user.uid,
       created_at: new Date().toISOString(),
       decided_at: null,
       status: ProjectStatus.PENDING,
       decision: null,
-      score_1: 0,
-      score_2: 0,
-      score_3: 0,
-      score_4: 0,
-      score_5: 0,
-      score_6: 0,
+      score_problem: 0,
+      score_benefit: 0,
+      score_strategic: 0,
+      score_feasibility: 0,
+      score_urgency: 0,
+      score_data: 0,
       assessment_notes: "",
       requestor_name: user?.displayName || "Anonymous",
       requestor_email: user?.email || "",
-      flags: [],
+      flags: completedCase.flags || [],
       impl_cost: "0",
       payback_months: "0"
     };
@@ -857,6 +1067,21 @@ Output CASE_COMPLETE:{} when finished.
                 </div>
               </div>
             </div>
+          )}
+
+          {currentChoices && !isTyping && !completedCase && (
+            <QuickReplyChips
+              options={currentChoices.options}
+              multiSelect={currentChoices.type === 'multi'}
+              onSelect={(val) => {
+                setCurrentChoices(null);
+                handleSendValue(val);
+              }}
+              onMultiConfirm={(vals) => {
+                setCurrentChoices(null);
+                handleSendValue(vals.join(', '));
+              }}
+            />
           )}
 
           {completedCase && (
@@ -981,7 +1206,7 @@ function AssessmentPipeline({ cases, onUpdateCase }: { cases: UnifiedCase[], onU
     onUpdateCase(selectedCase.id, updates);
   };
 
-  const handleDecision = (decision: ProjectDecision) => {
+  const handleDecision = (decision: ProjectDecision | AIDecision) => {
     updateSelectedCase({
       decision,
       status: ProjectStatus.DECIDED,
@@ -990,12 +1215,12 @@ function AssessmentPipeline({ cases, onUpdateCase }: { cases: UnifiedCase[], onU
   };
 
   const calculatedScore = selectedCase ? (
-    (selectedCase.score_1 * 0.2) +
-    (selectedCase.score_2 * 0.25) +
-    (selectedCase.score_3 * 0.2) +
-    (selectedCase.score_4 * 0.15) +
-    (selectedCase.score_5 * 0.1) +
-    (selectedCase.score_6 * 0.1)
+    (selectedCase.score_problem * 0.2) +
+    (selectedCase.score_benefit * 0.25) +
+    (selectedCase.score_strategic * 0.2) +
+    (selectedCase.score_feasibility * 0.15) +
+    (selectedCase.score_urgency * 0.1) +
+    (selectedCase.score_data * 0.1)
   ).toFixed(1) : '0.0';
 
   const getScoreVerdict = (score: string) => {
@@ -1027,27 +1252,22 @@ function AssessmentPipeline({ cases, onUpdateCase }: { cases: UnifiedCase[], onU
       Kaizen Pillars (Big Bets): Hey Betano (AI), Shield Betano (Risk), Betano Republic (Model), Core Betano (Ops).
 
       Provide suggested 1-5 scores for:
-      1. Problem Intensity (hurts now)
-      2. Benefit (ROI/Scale)
-      3. Strategic Fit (Big Bets)
-      4. Feasibility (Easy to build)
-      5. Urgency (Deadline)
-      6. Data Readiness (AI specific or general)
+      1. score_problem (intensity of the problem)
+      2. score_benefit (ROI/Scale)
+      3. score_strategic (Alignment with Big Bets)
+      4. score_feasibility (Ease of implementation)
+      5. score_urgency (Timeline pressure)
+      6. score_data (Data readiness / quality)
 
       Then write 2 sentences of high-level assessment notes.
-      FORMAT: JSON exactly: {"scores": [p,b,s,f,u,d], "notes": ""}
+      FORMAT: JSON exactly: {"scores": {"score_problem": p, "score_benefit": b, "score_strategic": s, "score_feasibility": f, "score_urgency": u, "score_data": d}, "notes": ""}
     `;
 
       try {
         const resp = await callGeminiOnce(prompt);
         const data = JSON.parse(resp);
         updateSelectedCase({
-          score_1: data.scores[0],
-          score_2: data.scores[1],
-          score_3: data.scores[2],
-          score_4: data.scores[3],
-          score_5: data.scores[4],
-          score_6: data.scores[5],
+          ...data.scores,
           assessment_notes: data.notes
         });
       } catch (e) {
@@ -1164,12 +1384,12 @@ function AssessmentPipeline({ cases, onUpdateCase }: { cases: UnifiedCase[], onU
                 {/* Score Sliders */}
                 <div className="bg-grey-50/50 p-6 rounded-card border border-grey-100 grid grid-cols-2 gap-x-8 gap-y-6 shadow-sm">
                   {[
-                    { label: 'Problem', field: 'score_1' },
-                    { label: 'Benefit', field: 'score_2' },
-                    { label: 'Strategic', field: 'score_3' },
-                    { label: 'Feasibility', field: 'score_4' },
-                    { label: 'Urgency', field: 'score_5' },
-                    { label: 'Intelligence', field: 'score_6' },
+                    { label: 'Problem Intensity', field: 'score_problem' },
+                    { label: 'Benefit / ROI', field: 'score_benefit' },
+                    { label: 'Strategic Fit', field: 'score_strategic' },
+                    { label: 'Feasibility', field: 'score_feasibility' },
+                    { label: 'Urgency', field: 'score_urgency' },
+                    { label: 'Data Readiness', field: 'score_data' },
                   ].map(score => (
                     <div key={score.field}>
                       <div className="flex justify-between mb-2">
@@ -1185,18 +1405,7 @@ function AssessmentPipeline({ cases, onUpdateCase }: { cases: UnifiedCase[], onU
                     </div>
                   ))}
                   <div className="col-span-2 pt-4 border-t border-grey-100">
-                    <button 
-                      onClick={requestAIScoring}
-                      disabled={isScoring}
-                      className="w-full flex items-center justify-center gap-3 py-3 rounded-btn border border-indigo/20 text-indigo text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-indigo hover:text-white transition-standard disabled:opacity-50 group bg-white shadow-sm"
-                    >
-                      {isScoring ? 'Synchronizing...' : (
-                        <>
-                          <Zap size={14} className="group-hover:scale-125 transition-transform" />
-                          Synergize AI Scoring
-                        </>
-                      )}
-                    </button>
+                    <p className="text-[9px] text-grey-400 italic text-center mb-2">Automated scoring initialized via pipeline logic</p>
                   </div>
                 </div>
 
@@ -1237,6 +1446,35 @@ function AssessmentPipeline({ cases, onUpdateCase }: { cases: UnifiedCase[], onU
                    </div>
                 )}
 
+                {/* T3 AI Governance Checkboxes */}
+                {selectedCase.case_type !== CaseType.PROJECT && selectedCase.tier === 'T3' && (
+                  <div className="bg-white border border-grey-100 p-6 rounded-card shadow-sm space-y-4">
+                    <h4 className="text-[10px] font-bold text-grey-400 uppercase tracking-widest mb-2 flex items-center gap-2 italic">
+                      <ShieldCheck size={14} className="text-danger" /> T3 Governance Anchors
+                    </h4>
+                    <div className="grid grid-cols-1 gap-3">
+                      {[
+                        { label: 'DPO Approval', field: 'dpo_approved' },
+                        { label: 'Security Review', field: 'security_approved' },
+                        { label: 'Arch Council', field: 'architecture_approved' }
+                      ].map(item => (
+                        <label key={item.field} className="flex items-center gap-3 p-3 bg-grey-50 rounded-inner border border-grey-100 cursor-pointer hover:bg-white transition-standard">
+                          <input 
+                            type="checkbox"
+                            checked={!!selectedCase[item.field as keyof UnifiedCase]}
+                            onChange={(e) => updateSelectedCase({ [item.field]: e.target.checked })}
+                            className="w-4 h-4 accent-indigo rounded"
+                          />
+                          <span className="text-xs font-bold text-navy uppercase tracking-tight">{item.label}</span>
+                          {selectedCase[item.field as keyof UnifiedCase] && (
+                            <CheckCircle2 size={12} className="text-success ml-auto" />
+                          )}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Details Section */}
                 <div className="p-6 bg-grey-50/30 rounded-card border border-grey-100 border-dashed space-y-6 shadow-tiny">
                   <div>
@@ -1264,20 +1502,45 @@ function AssessmentPipeline({ cases, onUpdateCase }: { cases: UnifiedCase[], onU
                   <h4 className="text-[10px] font-bold text-grey-400 uppercase tracking-widest mb-6 flex items-center gap-2 italic">
                     <CheckCircle2 size={14} className="text-success" /> Decision Matrix
                   </h4>
-                  <div className="flex gap-4">
-                    <button 
-                      onClick={() => handleDecision(ProjectDecision.NOGO)}
-                      className="flex-1 px-4 py-4 rounded-btn border border-danger/20 text-danger text-[10px] font-bold uppercase tracking-widest hover:bg-danger hover:text-white transition-standard bg-white shadow-sm"
-                    >
-                      Archive / Reject
-                    </button>
-                    <button 
-                      onClick={() => handleDecision(ProjectDecision.GO)}
-                      className="flex-1 px-4 py-4 rounded-btn bg-success hover:bg-success/90 text-white text-[10px] font-bold uppercase tracking-widest transition-standard shadow-md-kaizen"
-                    >
-                      Approve Initiative
-                    </button>
-                  </div>
+                  {selectedCase.case_type !== CaseType.PROJECT ? (
+                    <div className="flex flex-col gap-3">
+                      <div className="flex gap-3">
+                        <button 
+                          onClick={() => handleDecision(AIDecision.REJECTED)}
+                          className="flex-1 px-4 py-3 rounded-btn border border-danger/20 text-danger text-[10px] font-bold uppercase tracking-widest hover:bg-danger hover:text-white transition-standard bg-white shadow-sm"
+                        >
+                          Reject
+                        </button>
+                        <button 
+                          onClick={() => handleDecision(AIDecision.NEEDS_INFO)}
+                          className="flex-1 px-4 py-3 rounded-btn border border-gold-dk/20 text-gold-dk text-[10px] font-bold uppercase tracking-widest hover:bg-gold-dk hover:text-white transition-standard bg-white shadow-sm"
+                        >
+                          Needs Info
+                        </button>
+                      </div>
+                      <button 
+                        onClick={() => handleDecision(AIDecision.APPROVED)}
+                        className="w-full px-4 py-4 rounded-btn bg-success hover:bg-success/90 text-white text-[10px] font-bold uppercase tracking-widest transition-standard shadow-md-kaizen"
+                      >
+                        Approve Governance Node
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-4">
+                      <button 
+                        onClick={() => handleDecision(ProjectDecision.NOGO)}
+                        className="flex-1 px-4 py-4 rounded-btn border border-danger/20 text-danger text-[10px] font-bold uppercase tracking-widest hover:bg-danger hover:text-white transition-standard bg-white shadow-sm"
+                      >
+                        Archive / Reject
+                      </button>
+                      <button 
+                        onClick={() => handleDecision(ProjectDecision.GO)}
+                        className="flex-1 px-4 py-4 rounded-btn bg-success hover:bg-success/90 text-white text-[10px] font-bold uppercase tracking-widest transition-standard shadow-md-kaizen"
+                      >
+                        Approve Initiative
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

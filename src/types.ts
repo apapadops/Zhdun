@@ -23,6 +23,12 @@ export enum ProjectDecision {
   NOGO = "nogo",
 }
 
+export enum AIDecision {
+  APPROVED = "approved",
+  NEEDS_INFO = "needs_info",
+  REJECTED = "rejected",
+}
+
 export enum TshirtSize {
   S = "S",
   M = "M",
@@ -41,9 +47,10 @@ export interface UnifiedCase {
   id: string;
   userId: string;
   created_at: string;
+  updatedAt?: any; // Firestore server timestamp
   decided_at: string | null;
   status: ProjectStatus;
-  decision: ProjectDecision | null;
+  decision: ProjectDecision | AIDecision | null;
 
   // Classification
   case_type: CaseType;
@@ -77,6 +84,9 @@ export interface UnifiedCase {
   payback_months?: string;
 
   // AI Governance Fields
+  initiative_description?: string;
+  additional_context?: string;
+  expected_benefits?: string;
   ai_tool?: string;
   use_type?: string;
   users_scope?: string;
@@ -86,14 +96,19 @@ export interface UnifiedCase {
   regulated_process?: string;
   intended_purpose?: string;
   tier_score?: number;
+  
+  // AI model tracking
+  ai_model_name?: string;
+  ai_is_external_data?: boolean;
+  ai_data_subjects?: string;
 
-  // Admin Scoring (Unified)
-  score_1: number;
-  score_2: number;
-  score_3: number;
-  score_4: number;
-  score_5: number;
-  score_6: number;
+  // Admin Scoring (Semantic Names)
+  score_problem: number;
+  score_benefit: number;
+  score_strategic: number;
+  score_feasibility: number;
+  score_urgency: number;
+  score_data: number;
 
   // T3 Governance
   dpo_approved?: boolean;

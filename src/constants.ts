@@ -35,7 +35,7 @@ export const UNIFIED_DEMO_DATA: UnifiedCase[] = [
     human_in_loop: "Always (Final decision by human)",
     regulated_process: "Yes (Financial Crime Compliance)",
     tier_score: 14,
-    score_1: 5, score_2: 4, score_3: 5, score_4: 4, score_5: 3, score_6: 5,
+    score_problem: 5, score_benefit: 4, score_strategic: 5, score_feasibility: 4, score_urgency: 3, score_data: 5,
     dpo_approved: true,
     security_approved: true,
     architecture_approved: true,
@@ -71,7 +71,7 @@ export const UNIFIED_DEMO_DATA: UnifiedCase[] = [
     fte_saving_est: "2.8",
     impl_cost: "15000",
     payback_months: "4",
-    score_1: 4, score_2: 4, score_3: 5, score_4: 4, score_5: 2, score_6: 3
+    score_problem: 4, score_benefit: 4, score_strategic: 5, score_feasibility: 4, score_urgency: 2, score_data: 3
   },
   {
     id: "demo-hybrid-1",
@@ -110,6 +110,6 @@ export const UNIFIED_DEMO_DATA: UnifiedCase[] = [
     data_types: "Market Data, Competitor Feeds",
     human_in_loop: "Sometimes (High confidence auto-acts)",
     tier_score: 12,
-    score_1: 4, score_2: 5, score_3: 4, score_4: 3, score_5: 4, score_6: 4
+    score_problem: 4, score_benefit: 5, score_strategic: 4, score_feasibility: 3, score_urgency: 4, score_data: 4
   }
 ];
