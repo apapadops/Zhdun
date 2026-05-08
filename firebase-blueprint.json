@@ -1,51 +1,26 @@
 {
   "entities": {
-    "AIGovernanceCase": {
-      "title": "AI Governance Case",
-      "description": "Represents an AI initiative through the governance lifecycle",
+    "UnifiedCase": {
+      "title": "Unified Intake Case",
+      "description": "Represents a unified transformation or AI initiative",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
-        "userId": { "type": "string", "description": "UID of the requestor" },
-        "created_at": { "type": "string", "format": "date-time" },
-        "decided_at": { "type": "string", "format": "date-time" },
-        "approved_date": { "type": "string" },
-        "next_review_date": { "type": "string" },
-        "status": { "type": "string", "enum": ["pending", "review", "decided"] },
-        "decision": { "type": "string", "enum": ["approved", "needs-more-info", "rejected"] },
-        "registry_status": { "type": "string", "enum": ["pending", "active", "rejected"] },
-        "requestor_name": { "type": "string" },
-        "requestor_department": { "type": "string" },
-        "initiative_title": { "type": "string" },
-        "initiative_description": { "type": "string" },
-        "use_type": { "type": "string" },
-        "intended_purpose": { "type": "string" },
-        "users_scope": { "type": "string" },
-        "markets_affected": { "type": "string" },
-        "data_types": { "type": "string" },
-        "system_integrations": { "type": "string" },
-        "ai_tool": { "type": "string" },
-        "human_in_loop": { "type": "string" },
-        "regulated_process": { "type": "string" },
-        "bias_risk": { "type": "string" },
-        "strategic_driver": { "type": "string" },
-        "deadline": { "type": "string" },
-        "additional_context": { "type": "string" },
-        "tier": { "type": "string", "enum": ["T1", "T2", "T3"] },
-        "tier_score": { "type": "number" },
-        "flags": { "type": "array", "items": { "type": "string" } },
-        "dpo_approved": { "type": "boolean" },
-        "security_approved": { "type": "boolean" },
-        "architecture_approved": { "type": "boolean" },
-        "assessment_notes": { "type": "string" }
+        "userId": { "type": "string" },
+        "project_title": { "type": "string" },
+        "case_type": { "type": "string" },
+        "status": { "type": "string" },
+        "tier": { "type": "string" },
+        "requestor_email": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
       },
-      "required": ["id", "userId", "initiative_title", "status"]
+      "required": ["id", "userId", "project_title", "status"]
     }
   },
   "firestore": {
-    "/ai_governance_cases/{caseId}": {
-      "schema": "AIGovernanceCase",
-      "description": "Collection of AI governance initiatives"
+    "/unified_cases/{caseId}": {
+      "schema": "UnifiedCase",
+      "description": "Collection of all intake initiatives"
     }
   }
 }

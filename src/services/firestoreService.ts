@@ -10,10 +10,11 @@ import {
   where,
   onSnapshot,
   Timestamp,
-  serverTimestamp
+  serverTimestamp,
+  orderBy
 } from 'firebase/firestore';
 import { db, auth } from '../firebase';
-import { AIGovernanceCase, ProjectStatus } from '../types';
+import { UnifiedCase, ProjectStatus } from '../types';
 
 enum OperationType {
   CREATE = 'create',
@@ -63,10 +64,10 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
   throw new Error(errorJson);
 }
 
-const COLLECTION_PATH = 'ai_governance_cases';
+const COLLECTION_PATH = 'unified_cases';
 
-export const governanceService = {
-  async saveCase(caseData: AIGovernanceCase) {
+export const unifiedService = {
+  async saveCase(caseData: UnifiedCase) {
     if (!auth || !auth.currentUser || !db) return;
     
     const path = `${COLLECTION_PATH}/${caseData.id}`;
@@ -76,14 +77,13 @@ export const governanceService = {
         userId: auth.currentUser.uid,
         updatedAt: serverTimestamp(),
       };
-      // If it has created_at as string, we keep it but ensure server consistency if needed
       await setDoc(doc(db, COLLECTION_PATH, caseData.id), dataToSave);
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, path);
     }
   },
 
-  async updateCase(id: string, updates: Partial<AIGovernanceCase>) {
+  async updateCase(id: string, updates: Partial<UnifiedCase>) {
     if (!db) return;
     const path = `${COLLECTION_PATH}/${id}`;
     try {
@@ -101,13 +101,34 @@ export const governanceService = {
     const path = `${COLLECTION_PATH}/${id}`;
     try {
       const docSnap = await getDoc(doc(db, COLLECTION_PATH, id));
-      return docSnap.exists() ? docSnap.data() as AIGovernanceCase : null;
+      return docSnap.exists() ? docSnap.data() as UnifiedCase : null;
     } catch (error) {
       handleFirestoreError(error, OperationType.GET, path);
     }
   },
 
-  subscribeToCases(callback: (cases: AIGovernanceCase[]) => void) {
+  /** Subscribe to all cases (Admin view) */
+  subscribeToAllCases(callback: (cases: UnifiedCase[]) => void) {
+    if (!db) {
+      callback([]);
+      return () => {};
+    }
+
+    const q = query(
+      collection(db, COLLECTION_PATH), 
+      orderBy('created_at', 'desc')
+    );
+
+    return onSnapshot(q, (snapshot) => {
+      const cases = snapshot.docs.map(doc => doc.data() as UnifiedCase);
+      callback(cases);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, COLLECTION_PATH);
+    });
+  },
+
+  /** Subscribe to cases for the current user only (Requestor view) */
+  subscribeToMyCases(callback: (cases: UnifiedCase[]) => void) {
     if (!auth || !auth.currentUser || !db) {
       callback([]);
       return () => {};
@@ -115,11 +136,12 @@ export const governanceService = {
 
     const q = query(
       collection(db, COLLECTION_PATH), 
-      where('userId', '==', auth.currentUser.uid)
+      where('userId', '==', auth.currentUser.uid),
+      orderBy('created_at', 'desc')
     );
 
     return onSnapshot(q, (snapshot) => {
-      const cases = snapshot.docs.map(doc => doc.data() as AIGovernanceCase);
+      const cases = snapshot.docs.map(doc => doc.data() as UnifiedCase);
       callback(cases);
     }, (error) => {
       handleFirestoreError(error, OperationType.LIST, COLLECTION_PATH);

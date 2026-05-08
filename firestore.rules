@@ -1,6 +1,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    
     // Default Deny
     match /{document=**} {
       allow read, write: if false;
@@ -10,51 +11,34 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+    function isAdmin() {
+      return isSignedIn() && 
+        (request.auth.token.email == 'al.papadopoulos@kaizengaming.com' || 
+         request.auth.token.email == 'm.chatzicharalampous@kaizengaming.com' ||
+         request.auth.token.email == 'v.vlachakis@kaizengaming.com' ||
+         request.auth.token.email == 'admin@kaizengaming.com') &&
+        request.auth.token.email_verified == true;
     }
 
-    function isValidId(id) {
-      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    // Explicitly allow connection check
+    match /test/connection {
+      allow get: if true;
     }
 
-    function incoming() {
-      return request.resource.data;
-    }
-
-    function existing() {
-      return resource.data;
-    }
-
-    // Helper for AI Governance Case validation
-    function isValidCase(data) {
-      return data.keys().hasAll(['id', 'userId', 'initiative_title', 'status', 'tier', 'tier_score']) &&
-             data.id is string && data.id.size() <= 100 &&
-             data.userId == request.auth.uid &&
-             data.initiative_title is string && data.initiative_title.size() <= 200 &&
-             data.status in ['pending', 'review', 'decided'] &&
-             data.tier in ['T1', 'T2', 'T3'] &&
-             data.tier_score is number &&
-             // Ensure flags is a list and elements are strings
-             data.flags is list && (data.flags.size() == 0 || data.flags[0] is string) && data.flags.size() <= 20 &&
-             // Timestamp integrity
-             (data.updatedAt == request.time || !data.keys().hasAny(['updatedAt']))
-    }
-
-    match /ai_governance_cases/{caseId} {
-      allow get: if isOwner(existing().userId) && isValidId(caseId);
-      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+    match /unified_cases/{caseId} {
+      // Allow all signed-in users to list and get cases for the shared pipeline/dashboard
+      allow read: if isSignedIn();
       
-      allow create: if isSignedIn() && isValidId(caseId) && isValidCase(incoming());
+      // Allow create if signed in
+      allow create: if isSignedIn();
       
-      allow update: if isOwner(existing().userId) && isValidId(caseId) && isValidCase(incoming()) && (
-        // Action: Transformation Review (updating status/decision/notes)
-        (incoming().diff(existing()).affectedKeys().hasOnly(['status', 'decision', 'decided_at', 'assessment_notes', 'dpo_approved', 'security_approved', 'architecture_approved', 'registry_status', 'approved_date', 'next_review_date', 'updatedAt'])) ||
-        // Action: User update (if allowed in some states)
-        (existing().status == 'pending' && incoming().diff(existing()).affectedKeys().hasOnly(['initiative_description', 'users_scope', 'data_types', 'ai_tool', 'system_integrations', 'human_in_loop', 'updatedAt']))
+      // Update: Admin or Owner (if pending)
+      allow update: if isSignedIn() && (
+        isAdmin() || 
+        (resource.data.userId == request.auth.uid && resource.data.status == 'pending')
       );
 
-      allow delete: if false; // Regulatory requirement: no deletions for audit
+      allow delete: if isAdmin();
     }
   }
 }

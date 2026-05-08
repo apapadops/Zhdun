@@ -30,85 +30,78 @@ export enum TshirtSize {
   XL = "XL",
 }
 
-export enum AIGovernanceDecision {
-  APPROVED = "approved",
-  NEEDS_INFO = "needs-more-info",
-  REJECTED = "rejected",
+export enum CaseType {
+  PROJECT = "project",
+  AI = "ai",
+  HYBRID = "hybrid",
 }
 
-export interface AIGovernanceCase {
+export interface UnifiedCase {
+  // Identity and Status
   id: string;
-  created_at: string;
-  decided_at: string | null;
-  approved_date: string;
-  next_review_date: string;
-  status: ProjectStatus;
-  decision: AIGovernanceDecision | null;
-  registry_status: "pending" | "active" | "rejected";
-
-  requestor_name: string;
-  requestor_department: string;
-  initiative_title: string;
-  initiative_description: string;
-  use_type: string;
-  intended_purpose: string;
-  users_scope: string;
-  markets_affected: string;
-  data_types: string;
-  system_integrations: string;
-  ai_tool: string;
-  human_in_loop: string;
-  regulated_process: string;
-  bias_risk: string;
-  strategic_driver: string;
-  deadline: string;
-  additional_context: string;
-  tier: "T1" | "T2" | "T3";
-  tier_score: number;
-  flags: string[];
-
-  dpo_approved: boolean;
-  security_approved: boolean;
-  architecture_approved: boolean;
-  assessment_notes: string;
-}
-
-export interface TransformationCase {
-  id: string;
+  userId: string;
   created_at: string;
   decided_at: string | null;
   status: ProjectStatus;
   decision: ProjectDecision | null;
-  project_title: string;
+
+  // Classification
+  case_type: CaseType;
+  tier: "T1" | "T2" | "T3";
+
+  // Common Fields
   requestor_name: string;
   requestor_department: string;
-  department?: string; // Backward compatibility
-  teams_involved: string;
-  markets_affected: string;
-  duration: string;
-  tier: string;
-  tshirt: TshirtSize;
+  requestor_email?: string;
+  project_title: string;
   problem_statement: string;
   expected_outcome: string;
-  volume_per_month: string;
-  hours_per_case: string;
-  team_profile: string;
-  annual_fte_cost: string;
-  annual_hours: string;
-  fte_saving_est: string;
-  soft_benefits: string;
+  markets_affected: string;
   strategic_driver: string;
   deadline: string;
-  impl_cost: string;
-  payback_months: string;
   flags: string[];
-  score_problem: number;
-  score_benefit: number;
-  score_strategic: number;
-  score_feasibility: number;
-  score_urgency: number;
-  score_data: number;
   assessment_notes: string;
+
+  // Project / ROI Fields
+  teams_involved?: string;
+  duration?: string;
+  tshirt?: TshirtSize;
+  volume_per_month?: string;
+  hours_per_case?: string;
+  team_profile?: string;
+  annual_fte_cost?: string;
+  annual_hours?: string;
+  fte_saving_est?: string;
+  soft_benefits?: string;
+  impl_cost?: string;
+  payback_months?: string;
+
+  // AI Governance Fields
+  ai_tool?: string;
+  use_type?: string;
+  users_scope?: string;
+  data_types?: string;
+  system_integrations?: string;
+  human_in_loop?: string;
+  regulated_process?: string;
+  intended_purpose?: string;
+  tier_score?: number;
+
+  // Admin Scoring (Unified)
+  score_1: number;
+  score_2: number;
+  score_3: number;
+  score_4: number;
+  score_5: number;
+  score_6: number;
+
+  // T3 Governance
+  dpo_approved?: boolean;
+  security_approved?: boolean;
+  architecture_approved?: boolean;
+  approved_date?: string;
+  next_review_date?: string;
+  registry_status?: 'pending' | 'active' | 'rejected';
 }
 
 export interface Message {
