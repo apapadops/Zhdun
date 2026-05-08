@@ -1,7 +1,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // Default Deny
     match /{document=**} {
       allow read, write: if false;
@@ -12,32 +12,38 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && 
-        (request.auth.token.email == 'al.papadopoulos@kaizengaming.com' || 
+      return isSignedIn() &&
+        (request.auth.token.email == 'al.papadopoulos@kaizengaming.com' ||
          request.auth.token.email == 'm.chatzicharalampous@kaizengaming.com' ||
          request.auth.token.email == 'v.vlachakis@kaizengaming.com' ||
          request.auth.token.email == 'admin@kaizengaming.com') &&
         request.auth.token.email_verified == true;
     }
 
-    // Explicitly allow connection check
+    // Connection health check
     match /test/connection {
       allow get: if true;
     }
 
-    match /unified_cases/{caseId} {
-      // Allow all signed-in users to list and get cases for the shared pipeline/dashboard
-      allow read: if isSignedIn();
-      
-      // Allow create if signed in
+    // ── zhdun_initiatives (primary collection for this app) ──
+    match /zhdun_initiatives/{docId} {
+      allow read:   if isSignedIn();
       allow create: if isSignedIn();
-      
-      // Update: Admin or Owner (if pending)
       allow update: if isSignedIn() && (
-        isAdmin() || 
+        isAdmin() ||
         (resource.data.userId == request.auth.uid && resource.data.status == 'pending')
       );
+      allow delete: if isAdmin();
+    }
 
+    // ── unified_cases (legacy — kept for backward compatibility) ──
+    match /unified_cases/{caseId} {
+      allow read:   if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (
+        isAdmin() ||
+        (resource.data.userId == request.auth.uid && resource.data.status == 'pending')
+      );
       allow delete: if isAdmin();
     }
   }
