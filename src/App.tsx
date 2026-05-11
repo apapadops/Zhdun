@@ -93,8 +93,8 @@ function QuickReplyChips({ options, multiSelect, onSelect, onMultiConfirm }: Qui
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => onSelect(opt)}
-            className="px-4 py-2 rounded-pill bg-white border border-indigo/30 text-indigo text-[10px] font-bold 
-                       hover:bg-indigo hover:text-white hover:border-indigo transition-standard shadow-sm uppercase tracking-wider"
+            className="px-4 py-2 rounded-pill bg-white border border-indigo/30 text-indigo text-[10px] font-medium 
+                       hover:bg-indigo hover:text-white hover:border-indigo transition-standard shadow-sm tracking-wider"
           >
             {opt}
           </motion.button>
@@ -115,7 +115,7 @@ function QuickReplyChips({ options, multiSelect, onSelect, onMultiConfirm }: Qui
             onClick={() => setSelected(prev =>
               prev.includes(opt) ? prev.filter(x => x !== opt) : [...prev, opt]
             )}
-            className={`px-4 py-2 rounded-pill text-[10px] font-bold transition-standard shadow-sm border uppercase tracking-wider
+            className={`px-4 py-2 rounded-pill text-[10px] font-medium transition-standard shadow-sm border tracking-wider
               ${selected.includes(opt)
                 ? 'bg-indigo text-white border-indigo'
                 : 'bg-white border-indigo/30 text-indigo hover:bg-indigo/10'}`}
@@ -127,7 +127,7 @@ function QuickReplyChips({ options, multiSelect, onSelect, onMultiConfirm }: Qui
       {selected.length > 0 && (
         <button
           onClick={() => onMultiConfirm?.(selected)}
-          className="px-6 py-2 bg-navy text-white rounded-pill text-[9px] font-bold uppercase tracking-[0.2em] shadow-md hover:bg-indigo transition-standard"
+          className="px-6 py-2 bg-navy text-white rounded-pill text-[9px] font-medium tracking-[0.2em] shadow-md hover:bg-indigo transition-standard"
         >
           Confirm ({selected.length} selected)
         </button>
@@ -135,6 +135,12 @@ function QuickReplyChips({ options, multiSelect, onSelect, onMultiConfirm }: Qui
     </div>
   );
 }
+
+const TIER_NAMES: Record<string, string> = {
+  'T1': 'Strategic',
+  'T2': 'Tactical',
+  'T3': 'Quick Win'
+};
 
 const formatCurrency = (val: string | number) => {
   const num = typeof val === 'string' ? parseFloat(val) : val;
@@ -150,6 +156,30 @@ const getStatusColor = (status: ProjectStatus, decision: ProjectDecision | AIDec
   return 'grey';
 };
 
+const ScoringSpheres = ({ score }: { score: number }) => {
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div 
+          key={i} 
+          className={`w-2 h-2 rounded-pill ${i <= Math.round(score) ? 'bg-indigo' : 'bg-grey-200'}`} 
+        />
+      ))}
+    </div>
+  );
+};
+
+const getOverallScore = (c: UnifiedCase) => {
+  return (
+    (c.score_problem * 0.2) +
+    (c.score_benefit * 0.25) +
+    (c.score_strategic * 0.2) +
+    (c.score_feasibility * 0.15) +
+    (c.score_urgency * 0.1) +
+    (c.score_data * 0.1)
+  );
+};
+
 const EditableMetric = ({ label, value, note, onSave, isCurrency }: { label: string, value: string, note?: string, onSave: (v: string) => void, isCurrency?: boolean }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [val, setVal] = useState(value);
@@ -161,10 +191,10 @@ const EditableMetric = ({ label, value, note, onSave, isCurrency }: { label: str
   if (isEditing) {
     return (
       <div className="bg-white p-3 rounded-lg border border-indigo shadow-md animate-in fade-in zoom-in duration-200">
-        <p className="text-[10px] font-bold text-indigo uppercase leading-none mb-1">{label}</p>
+        <p className="text-[10px] font-medium text-indigo leading-none mb-1">{label}</p>
         <input 
           autoFocus
-          className="w-full text-lg font-mono font-bold text-base outline-none bg-indigo-lt/30 px-1 rounded" 
+          className="w-full text-lg font-mono font-medium text-base outline-none bg-indigo-lt/30 px-1 rounded" 
           value={val} 
           onChange={e => setVal(e.target.value)}
           onBlur={() => { onSave(val); setIsEditing(false); }}
@@ -179,8 +209,8 @@ const EditableMetric = ({ label, value, note, onSave, isCurrency }: { label: str
       className="bg-grey-50 p-3 rounded-lg border border-grey-100 shadow-sm cursor-pointer group hover:bg-white hover:border-indigo/30 transition-all"
       onClick={() => setIsEditing(true)}
     >
-      <p className="text-[10px] font-bold text-grey-400 uppercase leading-none mb-1 group-hover:text-indigo transition-colors">{label}</p>
-      <p className="text-lg font-mono font-bold text-base group-hover:text-indigo transition-colors">
+      <p className="text-[10px] font-medium text-grey-400 leading-none mb-1 group-hover:text-indigo transition-colors">{label}</p>
+      <p className="text-lg font-mono font-medium text-base group-hover:text-indigo transition-colors">
         {isCurrency && value ? formatCurrency(value) : (value || '—')}
       </p>
       {note && <p className="text-[8px] text-grey-400 mt-1 italic">{note}</p>}
@@ -200,7 +230,7 @@ const Badge = ({ children, color = 'grey' }: { children: React.ReactNode; color?
     sage: 'bg-sage-lt text-sage-dk border-sage/20'
   };
   return (
-    <span className={`px-2.5 py-1 rounded-pill text-[10px] font-bold uppercase tracking-wider border ${colors[color] || colors.grey}`}>
+    <span className={`px-2.5 py-1 rounded-pill text-[10px] font-medium tracking-wider border ${colors[color] || colors.grey}`}>
       {children}
     </span>
   );
@@ -215,7 +245,7 @@ const BigBetBadge = ({ driver }: { driver: string }) => {
   };
   const cfg = configs[driver] || { bg: 'bg-grey-50', text: 'text-grey-400', icon: '🎯', border: 'border-grey-100' };
   return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-pill ${cfg.bg} ${cfg.text} font-bold text-[9px] uppercase tracking-widest border ${cfg.border} shadow-sm`}>
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-pill ${cfg.bg} ${cfg.text} font-medium text-[9px] tracking-widest border ${cfg.border} shadow-sm`}>
       <span className="text-[11px] leading-none">{cfg.icon}</span> {driver || 'Project'}
     </span>
   );
@@ -227,73 +257,74 @@ const BigBetBadge = ({ driver }: { driver: string }) => {
 
 // TAB 2: MY SUBMISSIONS
 
-function MySubmissionsModule({ cases }: { cases: UnifiedCase[] }) {
+function MySubmissionsModule({ cases, onSelectCase }: { cases: UnifiedCase[], onSelectCase: (c: UnifiedCase) => void }) {
   if (cases.length === 0) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-center py-20 bg-white rounded-card border-2 border-dashed border-grey-100 font-sans">
+      <div className="flex flex-col items-center justify-center text-center py-20 bg-white rounded-card border-2 border-dashed border-grey-100 font-sans">
         <div className="w-16 h-16 bg-grey-50 rounded-pill flex items-center justify-center text-grey-200 mb-6 shadow-tiny">
           <ClipboardList size={32} />
         </div>
-        <h3 className="text-xl font-bold mb-2 italic text-navy">No Submissions Yet</h3>
+        <h3 className="text-xl font-medium mb-2 italic text-navy">No Submissions Yet</h3>
         <p className="text-grey-400 font-medium max-w-sm">Use the Intake Wizard to start your first transformation or AI initiative.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 h-full flex flex-col font-sans">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8 h-full flex flex-col font-sans overflow-hidden">
+      <div className="flex items-center justify-between shrink-0">
         <div>
-           <h2 className="text-3xl font-bold tracking-tight italic text-navy">My Initiatives</h2>
+           <h2 className="text-3xl font-medium tracking-tight italic text-navy">My Initiatives</h2>
            <p className="text-grey-400 font-medium mt-1">Tracking {cases.length} active nodes</p>
         </div>
         <div className="flex items-center gap-3">
            <div className="flex bg-grey-100 p-1 rounded-pill border border-grey-200 shadow-tiny">
-             <button className="px-4 py-1.5 rounded-pill bg-white text-[10px] font-bold uppercase tracking-wider text-navy shadow-sm">All</button>
-             <button className="px-4 py-1.5 rounded-pill text-[10px] font-bold uppercase tracking-wider text-grey-400 hover:text-navy transition-standard">Active</button>
-             <button className="px-4 py-1.5 rounded-pill text-[10px] font-bold uppercase tracking-wider text-grey-400 hover:text-navy transition-standard">Decided</button>
+             <button className="px-4 py-1.5 rounded-pill bg-white text-[10px] font-medium text-navy shadow-sm">All</button>
+             <button className="px-4 py-1.5 rounded-pill text-[10px] font-medium text-grey-400 hover:text-navy transition-standard">Active</button>
+             <button className="px-4 py-1.5 rounded-pill text-[10px] font-medium text-grey-400 hover:text-navy transition-standard">Decided</button>
            </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-1 overflow-y-auto pr-2 pb-10 scrollbar-hide">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20 overflow-y-auto pr-2">
         {cases.map((c) => (
           <motion.div 
              key={c.id} 
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
+             onClick={() => onSelectCase(c)}
              className="bg-white rounded-card border border-grey-100 p-6 shadow-sm-kaizen hover:shadow-md-kaizen transition-standard group cursor-pointer border-l-4 border-l-indigo relative overflow-hidden"
           >
              <div className="flex justify-between items-start mb-6">
                 <Badge color={c.case_type === CaseType.AI ? 'gold' : c.case_type === CaseType.HYBRID ? 'indigo' : 'sage'}>{c.case_type}</Badge>
-                <div className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-${getStatusColor(c.status, c.decision)}`}>
+                <div className={`flex items-center gap-2 text-[10px] font-medium text-${getStatusColor(c.status, c.decision)}`}>
                    <div className={`w-2 h-2 rounded-pill bg-current animate-pulse`} />
                    {c.decision ? c.decision.replace(/_/g, ' ') : c.status}
                 </div>
              </div>
 
-             <h4 className="font-bold text-lg text-navy mb-3 group-hover:text-indigo transition-standard italic line-clamp-1">{c.project_title}</h4>
+             <h4 className="font-medium text-lg text-navy mb-3 group-hover:text-indigo transition-standard italic line-clamp-1">{c.project_title}</h4>
              <p className="text-xs text-grey-400 font-medium mb-6 line-clamp-3 italic leading-relaxed h-[4.5em]">
                "{c.case_type === CaseType.AI ? (c.initiative_description || c.problem_statement) : c.problem_statement}"
              </p>
 
              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-grey-50">
                 <div>
-                   <p className="text-[8px] font-bold text-grey-300 uppercase tracking-wider mb-1">
-                     {c.case_type === CaseType.AI ? 'Risk Level' : 'Tier / Size'}
+                   <p className="text-[8px] font-medium text-grey-300 tracking-wider mb-1">
+                     Tier / Size
                    </p>
-                   <p className="text-[11px] font-bold text-navy uppercase tabular-nums">
-                     {c.case_type === CaseType.AI ? (c.tier === 'T3' ? 'High' : c.tier === 'T2' ? 'Medium' : 'Low') : `${c.tier} / ${c.tshirt}`}
+                   <p className="text-[11px] font-medium text-navy tabular-nums">
+                     {TIER_NAMES[c.tier as string] || c.tier} / {c.tshirt}
                    </p>
                 </div>
                 <div>
-                   <p className="text-[8px] font-bold text-grey-300 uppercase tracking-wider mb-1">Benefit Est.</p>
-                   <p className="text-[11px] font-bold text-navy italic tabular-nums">
+                   <p className="text-[8px] font-medium text-grey-300 tracking-wider mb-1">Benefit Est.</p>
+                   <p className="text-[11px] font-medium text-navy italic tabular-nums">
                      {c.case_type === CaseType.AI ? 'N/A' : formatCurrency(c.annual_fte_cost || 0)}
                    </p>
                 </div>
                 <div className="col-span-2 pt-2">
-                   <p className="text-[8px] font-bold text-grey-300 uppercase tracking-wider mb-2">Strategy</p>
+                   <p className="text-[8px] font-medium text-grey-300 tracking-wider mb-2">Strategy</p>
                    <BigBetBadge driver={c.strategic_driver || ''} />
                 </div>
              </div>
@@ -320,6 +351,9 @@ export default function App() {
   const [user, setUser] = useState<any>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [isLogoutMenuOpen, setIsLogoutMenuOpen] = useState(false);
+  const [viewingCaseId, setViewingCaseId] = useState<string | null>(null);
+
+  const viewingCase = cases.find(c => c.id === viewingCaseId) || null;
 
   useEffect(() => {
     const unsubscribe = authService.onAuthSync((u) => {
@@ -366,8 +400,8 @@ export default function App() {
         >
           <img src="/logo.png" alt="Zhdun" className="w-full h-full object-contain drop-shadow-lg" />
         </motion.div>
-        <h2 className="text-4xl font-bold text-navy tracking-tight uppercase italic mb-2">ZH<span className="text-indigo">DUN</span></h2>
-        <p className="text-grey-400 text-[10px] font-bold uppercase tracking-[0.4em] tabular-nums">Establishing Connection Node</p>
+        <h2 className="text-4xl font-medium text-navy tracking-tight italic mb-2">ZH<span className="text-indigo">DUN</span></h2>
+        <p className="text-grey-400 text-[10px] font-medium tracking-[0.4em] tabular-nums">Establishing Connection Node</p>
       </div>
     );
   }
@@ -400,10 +434,10 @@ export default function App() {
             <img src="/logo.png" alt="Zhdun" className="w-full h-full object-contain" />
           </motion.div>
           
-          <h1 className="text-5xl font-bold text-navy tracking-tighter italic mb-3">
+          <h1 className="text-5xl font-medium text-navy tracking-tighter italic mb-3">
             ZH<span className="text-indigo">DUN</span>
           </h1>
-          <p className="text-grey-400 text-[9px] font-bold uppercase tracking-[0.4em] mb-10 opacity-70">Central Operations Hub</p>
+          <p className="text-grey-400 text-[9px] font-medium tracking-[0.4em] mb-10 opacity-70">Central Operations Hub</p>
           
           <div className="space-y-6">
             <p className="text-grey-500 text-sm font-medium leading-relaxed mb-8">
@@ -416,17 +450,17 @@ export default function App() {
               onClick={() => authService.signInWithGoogle()}
               className="w-full bg-navy hover:bg-navy-lt border border-navy/10 py-5 px-8 rounded-btn flex items-center justify-center gap-4 transition-standard shadow-sm-kaizen group"
             >
-              <div className="w-6 h-6 bg-white rounded-pill flex items-center justify-center text-navy text-[10px] font-bold group-hover:scale-110 transition-transform">G</div>
-              <span className="text-sm font-bold uppercase tracking-widest text-white">Authorize with Google</span>
+              <div className="w-6 h-6 bg-white rounded-pill flex items-center justify-center text-navy text-[10px] font-medium group-hover:scale-110 transition-transform">G</div>
+              <span className="text-sm font-medium tracking-widest text-white">Authorize with Google</span>
             </motion.button>
           </div>
           
-          <p className="mt-10 text-[8px] text-grey-300 font-bold uppercase tracking-[0.3em] tabular-nums">
+          <p className="mt-10 text-[8px] text-grey-300 font-medium tracking-[0.3em] tabular-nums">
             Enterprise Security Enforced v5.0
           </p>
         </motion.div>
         
-        <div className="absolute bottom-10 text-[9px] font-bold text-grey-300 uppercase tracking-[0.5em] opacity-40 tabular-nums">
+        <div className="absolute bottom-10 text-[9px] font-medium text-grey-300 tracking-[0.5em] opacity-40 tabular-nums">
           ZHDUN OS // 2026
         </div>
       </div>
@@ -462,8 +496,8 @@ export default function App() {
                 className="flex items-center gap-4 bg-white/70 backdrop-blur-xl p-2 sm:pl-6 rounded-pill border border-white/50 shadow-md cursor-pointer sm:cursor-default relative z-10"
               >
                 <div className="text-right hidden sm:block">
-                  <p className="text-[11px] font-bold text-navy uppercase leading-none tracking-tight">{user.displayName}</p>
-                  <button onClick={(e) => { e.stopPropagation(); authService.logout(); }} className="text-[9px] font-bold text-danger uppercase tracking-widest hover:text-danger-lt transition-standard mt-1 cursor-pointer">Disconnect</button>
+                  <p className="text-[11px] font-medium text-navy leading-none tracking-tight">{user.displayName}</p>
+                  <button onClick={(e) => { e.stopPropagation(); authService.logout(); }} className="text-[9px] font-medium text-danger tracking-widest hover:text-danger-lt transition-standard mt-1 cursor-pointer">Disconnect</button>
                 </div>
                 <img 
                   src={user.photoURL} 
@@ -486,7 +520,7 @@ export default function App() {
                         authService.logout();
                         setIsLogoutMenuOpen(false);
                       }}
-                      className="bg-danger text-white px-6 py-3 rounded-pill font-bold text-[10px] uppercase tracking-widest shadow-lg flex items-center gap-2 whitespace-nowrap cursor-pointer"
+                      className="bg-danger text-white px-6 py-3 rounded-pill font-medium text-[10px] tracking-widest shadow-lg flex items-center gap-2 whitespace-nowrap cursor-pointer"
                     >
                       <X size={14} /> Sign Out
                     </button>
@@ -510,8 +544,8 @@ export default function App() {
                 <img src="/logo.png" alt="Zhdun" className="w-full h-full object-contain drop-shadow-xl" />
               </motion.div>
               <div className="text-center">
-                <h1 className="text-7xl font-bold text-navy tracking-tighter italic leading-none mb-4">ZH<span className="text-indigo">DUN</span></h1>
-                <p className="text-grey-400 font-bold text-[9px] uppercase tracking-[0.5em] opacity-80">Operational Intelligence Platform</p>
+                <h1 className="text-7xl font-medium text-navy tracking-tighter italic leading-none mb-4">ZH<span className="text-indigo">DUN</span></h1>
+                <p className="text-grey-400 font-medium text-[9px] tracking-[0.5em] opacity-80">Operational Intelligence Platform</p>
               </div>
             </div>
             <p className="text-grey-500 font-medium text-lg max-w-2xl mx-auto leading-relaxed italic">
@@ -532,22 +566,19 @@ export default function App() {
                 <div className="w-20 h-20 bg-white/10 text-white rounded-inner flex items-center justify-center group-hover:bg-white group-hover:text-navy transition-standard border border-white/10 shadow-sm">
                   <Bot size={40} />
                 </div>
-                <div className="bg-indigo text-white text-[10px] font-bold px-4 py-1.5 rounded-pill uppercase tracking-widest shadow-sm">
-                  Unified Protocol
-                </div>
               </div>
-              <h3 className="text-4xl font-bold text-white mb-4 tracking-tight">Unified Intake Engine</h3>
+              <h3 className="text-4xl font-medium text-white mb-4 tracking-tight">AI Transformation Roadmap</h3>
               <p className="text-white/60 text-lg font-medium leading-relaxed mb-10 flex-1">
-                Initiate initiatives with AI assistance. A single gateway for Transformation Projects, AI Governance audits, and Strategic Alignment.
+                Initiate initiatives with AI assistance. A single gateway for transformation projects, AI governance.
               </p>
-              <div className="flex items-center gap-4 text-white font-bold text-xs uppercase tracking-[0.3em] group-hover:translate-x-3 transition-transform">
+              <div className="flex items-center gap-4 text-white font-medium text-xs tracking-[0.3em] group-hover:translate-x-3 transition-transform">
                 Initialize System <ArrowRight size={18} className="text-indigo" />
               </div>
             </motion.button>
           </div>
         </div>
 
-        <div className="absolute bottom-12 text-[10px] font-bold text-grey-300 uppercase tracking-[0.6em] opacity-40 tabular-nums">
+        <div className="absolute bottom-12 text-[10px] font-medium text-grey-300 tracking-[0.6em] opacity-40 tabular-nums">
           ZHDUN SECURED ECOSYSTEM
         </div>
       </div>
@@ -566,7 +597,7 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col font-sans">
+    <div className="h-screen bg-cream flex flex-col font-sans overflow-hidden">
       {/* Header */}
       <header className="h-20 bg-white/80 backdrop-blur-lg border-b border-grey-100 px-6 md:px-10 flex items-center justify-between shrink-0 sticky top-0 z-40">
         <div className="flex items-center gap-4 md:gap-6">
@@ -574,9 +605,9 @@ export default function App() {
             <img src="/logo.png" alt="Z" className="w-full h-full object-contain" />
           </div>
           <div className="hidden sm:block">
-            <h1 className="text-lg font-bold italic tracking-tight text-navy flex items-center gap-2">
+            <h1 className="text-lg font-medium italic tracking-tight text-navy flex items-center gap-2">
               ZH<span className="text-indigo">DUN</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-grey-300 not-italic tabular-nums">v5.0</span>
+              <span className="text-[10px] font-medium tracking-widest text-grey-300 not-italic tabular-nums">v5.0</span>
             </h1>
           </div>
         </div>
@@ -586,7 +617,7 @@ export default function App() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`px-4 md:px-6 py-2 rounded-pill text-[10px] font-bold uppercase tracking-widest transition-standard shrink-0 ${
+              className={`px-4 md:px-6 py-2 rounded-pill text-[10px] font-medium tracking-widest transition-standard shrink-0 ${
                 activeTab === tab.id 
                   ? 'bg-white shadow-sm text-indigo border border-grey-100' 
                   : 'text-grey-400 hover:text-navy hover:bg-grey-100/30'
@@ -602,15 +633,15 @@ export default function App() {
 
         <div className="flex items-center gap-4">
           <div className="text-right hidden lg:block">
-            <p className="text-[10px] font-bold text-navy uppercase tracking-tight leading-none mb-1">{user.displayName}</p>
-            <p className="text-[9px] font-bold text-indigo uppercase tracking-widest leading-none tabular-nums">{cases.length} Nodes Active</p>
+            <p className="text-[10px] font-medium text-navy tracking-tight leading-none mb-1">{user.displayName}</p>
+            <p className="text-[9px] font-medium text-indigo tracking-widest leading-none tabular-nums">{cases.length} Nodes Active</p>
           </div>
           <div className="relative group">
             <img src={user.photoURL} alt="" className="w-10 h-10 rounded-pill border-2 border-white shadow-md cursor-pointer" />
             <div className="absolute right-0 top-full mt-2 hidden group-hover:block w-48 bg-white rounded-btn shadow-lg border border-grey-100 p-2 z-50">
               <button 
                 onClick={() => authService.logout()}
-                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-grey-50 text-xs font-bold text-danger rounded-btn transition-standard md:cursor-pointer"
+                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-grey-50 text-xs font-medium text-danger rounded-btn transition-standard md:cursor-pointer"
               >
                 <LogOut size={14} />
                 Sign Out
@@ -643,7 +674,10 @@ export default function App() {
                exit={{ opacity: 0, y: -10 }}
                className="h-full"
              >
-               <MySubmissionsModule cases={cases.filter(c => c.requestor_email === user.email)} />
+               <MySubmissionsModule 
+                 cases={cases.filter(c => c.requestor_email === user.email)} 
+                 onSelectCase={(c) => setViewingCaseId(c.id)}
+               />
              </motion.div>
           )}
 
@@ -656,13 +690,17 @@ export default function App() {
                 exit={{ opacity: 0, y: -10 }}
                 className="h-full"
               >
-                <AssessmentPipeline cases={cases} onUpdateCase={handleUpdateCase} />
+                <AssessmentPipeline 
+                  cases={cases} 
+                  onUpdateCase={handleUpdateCase} 
+                  onSelectDetailedCase={(c) => setViewingCaseId(c.id)}
+                />
               </motion.div>
             ) : (
               <div className="h-full flex items-center justify-center">
                 <div className="bg-white p-10 rounded-card border border-grey-100 shadow-lg text-center max-w-sm">
                   <ShieldCheck size={40} className="text-danger mx-auto mb-6" />
-                  <h3 className="text-lg font-bold text-navy uppercase italic mb-2">Access Restricted</h3>
+              <h3 className="text-lg font-medium text-navy italic mb-2">Access Restricted</h3>
                   <p className="text-grey-500 text-xs font-medium leading-relaxed">
                     Only authorized Transformation Leads can access the Assessment Pipeline. Please contact your administrator.
                   </p>
@@ -684,7 +722,336 @@ export default function App() {
           )}
         </AnimatePresence>
       </main>
+
+      <CaseDetailsModal 
+        isOpen={!!viewingCaseId} 
+        onClose={() => setViewingCaseId(null)} 
+        item={viewingCase} 
+        onUpdate={handleUpdateCase}
+        isAdmin={isAdmin}
+      />
     </div>
+  );
+}
+
+// --- CASE DETAILS MODAL ---
+
+function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: { 
+  isOpen: boolean, 
+  onClose: () => void, 
+  item: UnifiedCase | null,
+  onUpdate: (id: string, updates: Partial<UnifiedCase>) => Promise<void>,
+  isAdmin: boolean
+}) {
+  if (!item) return null;
+
+  const isAI = item.case_type === CaseType.AI || item.case_type === CaseType.HYBRID;
+
+  const handleDecision = async (decision: ProjectDecision | AIDecision) => {
+    await onUpdate(item.id, {
+      decision,
+      status: ProjectStatus.DECIDED,
+      decided_at: new Date().toISOString()
+    });
+  };
+
+  const handleScoreChange = async (category: keyof UnifiedCase, score: number) => {
+    await onUpdate(item.id, { [category]: score });
+  };
+
+  const ScoringInput = ({ label, field, value }: { label: string, field: keyof UnifiedCase, value: number }) => (
+    <div className="mb-5 group/score">
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-[9px] font-bold text-grey-400 tracking-widest uppercase group-hover/score:text-indigo transition-colors">{label}</span>
+        <span className="text-[10px] font-mono font-bold text-indigo">{value || 0}/5</span>
+      </div>
+      <div className="flex gap-2.5">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <button
+            key={i}
+            disabled={!isAdmin}
+            onClick={() => handleScoreChange(field, i)}
+            className={`w-4 h-4 rounded-full border-2 transition-all duration-300 ${
+              i <= (value || 0)
+                ? 'bg-indigo border-indigo shadow-inner scale-110'
+                : 'bg-white border-grey-100 hover:border-indigo/30'
+            } ${isAdmin ? 'cursor-pointer hover:scale-125' : 'cursor-default opacity-80'}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+
+  const DetailSection = ({ title, icon: Icon, children }: { title: string, icon: any, children: React.ReactNode }) => (
+    <div className="mb-8">
+      <div className="flex items-center gap-3 mb-4 pb-2 border-b border-grey-100">
+        <div className="p-2 bg-indigo-lt text-indigo rounded shadow-tiny">
+          <Icon size={18} />
+        </div>
+        <h4 className="text-sm font-medium text-navy tracking-widest italic">{title}</h4>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {children}
+      </div>
+    </div>
+  );
+
+  const DetailItem = ({ label, value, fullWidth }: { label: string, value: string | number | boolean | undefined, fullWidth?: boolean }) => {
+    if (value === undefined || value === null || value === '') return null;
+    return (
+      <div className={`p-4 bg-grey-50 rounded-inner border border-grey-100 group hover:bg-white transition-all duration-300 ${fullWidth ? 'md:col-span-2' : ''}`}>
+        <p className="text-[10px] font-medium text-grey-400 tracking-[0.2em] mb-1 group-hover:text-indigo transition-colors">{label}</p>
+        <p className="text-sm font-medium text-navy italic leading-relaxed whitespace-pre-wrap">
+          {typeof value === 'boolean' ? (value ? 'YES' : 'NO') : value}
+        </p>
+      </div>
+    );
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-navy/60 backdrop-blur-sm"
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="bg-white w-full max-w-5xl max-h-full rounded-card shadow-2xl relative z-10 flex flex-col overflow-hidden"
+          >
+            {/* Modal Header */}
+            <div className="p-6 md:p-8 border-b border-grey-100 flex items-start justify-between bg-white sticky top-0 z-10">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                  <Badge color={item.case_type === CaseType.AI ? 'gold' : item.case_type === CaseType.HYBRID ? 'indigo' : 'sage'}>
+                    {item.case_type} :: {item.tier}
+                  </Badge>
+                  <div className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-${getStatusColor(item.status, item.decision)}`}>
+                    <div className={`w-2 h-2 rounded-pill bg-current animate-pulse`} />
+                    {item.decision ? item.decision.replace(/_/g, ' ') : item.status}
+                  </div>
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold text-navy tracking-tighter italic leading-tight uppercase">
+                  {item.project_title}
+                </h2>
+              </div>
+              <button 
+                onClick={onClose}
+                className="p-3 hover:bg-grey-100 rounded-pill transition-standard group mt-[-10px] mr-[-10px]"
+              >
+                <X size={24} className="text-grey-300 group-hover:text-navy" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar bg-cream/5 font-sans">
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div className="md:col-span-2 space-y-8">
+                  <DetailSection title="The Initiative" icon={Target}>
+                    <DetailItem label="Problem Statement" value={item.problem_statement} fullWidth />
+                    <DetailItem label="Expected Outcome" value={item.expected_outcome} fullWidth />
+                    {item.initiative_description && <DetailItem label="Initiative Description" value={item.initiative_description} fullWidth />}
+                    {item.additional_context && <DetailItem label="Additional Context" value={item.additional_context} fullWidth />}
+                  </DetailSection>
+
+                  <DetailSection title="Strategic Alignment" icon={TrendingUp}>
+                    <DetailItem label="Strategic Driver" value={item.strategic_driver} />
+                    <DetailItem label="Markets Affected" value={item.markets_affected} />
+                    <DetailItem label="Impacted Dept." value={item.requestor_department} />
+                    <DetailItem label="Requestor" value={item.requestor_name} />
+                  </DetailSection>
+
+                  {isAI && (
+                    <DetailSection title="AI Governance" icon={Bot}>
+                      <DetailItem label="AI Tool" value={item.ai_tool} />
+                      <DetailItem label="Model Name" value={item.ai_model_name} />
+                      <DetailItem label="Intended Purpose" value={item.intended_purpose} />
+                      <DetailItem label="Users Scope" value={item.users_scope} />
+                      <DetailItem label="Data Types" value={item.data_types} />
+                      <DetailItem label="System Integrations" value={item.system_integrations} />
+                      <DetailItem label="Human in Loop" value={item.human_in_loop} />
+                      <DetailItem label="Regulated Process" value={item.regulated_process} />
+                      <DetailItem label="External Data" value={item.ai_is_external_data} />
+                      <DetailItem label="Data Subjects" value={item.ai_data_subjects} />
+                      <DetailItem label="Expected Benefits" value={item.expected_benefits} fullWidth />
+                    </DetailSection>
+                  )}
+
+                  {!isAI && (
+                    <DetailSection title="Execution & ROI" icon={BarChart3}>
+                      <DetailItem label="Est. Annual Benefit" value={item.annual_fte_cost ? formatCurrency(item.annual_fte_cost) : undefined} />
+                      <DetailItem label="Est. Implementation Cost" value={item.impl_cost ? formatCurrency(item.impl_cost) : undefined} />
+                      <DetailItem label="FTE Savings Est." value={item.fte_saving_est ? `${item.fte_saving_est} FTE` : undefined} />
+                      <DetailItem label="Payback Period" value={item.payback_months ? `${item.payback_months} Months` : undefined} />
+                      <DetailItem label="Teams Involved" value={item.teams_involved} />
+                      <DetailItem label="Duration" value={item.duration} />
+                      <DetailItem label="Monthly Volume" value={item.volume_per_month} />
+                      <DetailItem label="Hours per Case" value={item.hours_per_case} />
+                      <DetailItem label="Team Profile" value={item.team_profile} />
+                      <DetailItem label="Soft Benefits" value={item.soft_benefits} fullWidth />
+                    </DetailSection>
+                  )}
+                  
+                  {item.assessment_notes && (
+                    <DetailSection title="Assessment Records" icon={FileText}>
+                      <DetailItem label="Analyst Notes" value={item.assessment_notes} fullWidth />
+                    </DetailSection>
+                  )}
+                </div>
+
+                <div className="space-y-6">
+                  {/* Decision Controls (Admin Only or Decided View) */}
+                  <div className="bg-navy p-8 rounded-card text-white relative overflow-hidden group shadow-xl">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-pill -mr-16 -mt-16" />
+                    <p className="text-[10px] font-medium text-white/30 mb-6 uppercase tracking-widest">Decision Hub</p>
+                    
+                    <div className="space-y-4">
+                      {isAdmin && item.status !== ProjectStatus.DECIDED && (
+                        <div className="grid grid-cols-1 gap-2 mb-6">
+                          <button 
+                            onClick={() => handleDecision(ProjectDecision.GO)}
+                            className="w-full py-3 bg-success text-white text-[10px] font-bold rounded-pill shadow-lg hover:bg-success-lt hover:text-success transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-2"
+                          >
+                            <CheckCircle2 size={14} /> Issue Go Verdict
+                          </button>
+                          <button 
+                            onClick={() => handleDecision(ProjectDecision.NOGO)}
+                            className="w-full py-3 bg-danger text-white text-[10px] font-bold rounded-pill shadow-lg hover:bg-danger-lt hover:text-danger transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-2"
+                          >
+                            <X size={14} /> No-Go Decision
+                          </button>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button 
+                              onClick={() => handleDecision(AIDecision.REJECTED)}
+                              className="py-2.5 bg-white/10 text-white/70 text-[9px] font-bold rounded-pill border border-white/10 hover:bg-white/20 transition-all uppercase tracking-widest"
+                            >
+                              Reject Node
+                            </button>
+                            <button 
+                              onClick={() => handleDecision(AIDecision.NEEDS_INFO)}
+                              className="py-2.5 bg-gold text-navy text-[9px] font-bold rounded-pill shadow-md hover:bg-gold-lt transition-all uppercase tracking-widest"
+                            >
+                              Needs Info
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center bg-white/5 p-3 rounded border border-white/10">
+                        <span className="text-[9px] font-medium text-white/50 tracking-widest">Magnitude</span>
+                        <span className="text-xl font-medium italic tabular-nums">{item.tshirt}</span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center bg-white/5 p-3 rounded border border-white/10">
+                        <span className="text-[9px] font-medium text-white/50 tracking-widest">Pipeline Node</span>
+                        <span className="text-[10px] font-medium tracking-widest text-indigo-lt uppercase">{item.status}</span>
+                      </div>
+
+                      {item.decision && (
+                        <div className="flex justify-between items-center bg-white/10 p-4 rounded-inner border border-white/20 shadow-inner">
+                          <span className="text-[9px] font-medium text-white/50 tracking-widest uppercase">Verdict</span>
+                          <span className={`text-lg font-bold italic uppercase ${getStatusColor(item.status, item.decision) === 'success' ? 'text-success' : 'text-danger'}`}>
+                            {item.decision.replace(/_/g, ' ')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    {item.decided_at && (
+                      <p className="mt-6 text-[8px] font-medium text-white/20 tracking-widest text-center italic">Node finalized on {new Date(item.decided_at).toLocaleDateString()}</p>
+                    )}
+                  </div>
+
+                  {/* Enhanced Scoring Layer */}
+                  <div className="bg-white border border-grey-100 p-8 rounded-card shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-indigo/5 rounded-pill -mr-12 -mt-12" />
+                    <h4 className="text-[10px] font-bold text-navy mb-8 italic flex items-center gap-2 uppercase tracking-widest">
+                       <Activity size={14} className="text-indigo" /> Transformation Score
+                    </h4>
+                    
+                    <div className="space-y-2">
+                      <ScoringInput label="Problem Intensity" field="score_problem" value={item.score_problem} />
+                      <ScoringInput label="Benefit / ROI" field="score_benefit" value={item.score_benefit} />
+                      <ScoringInput label="Strategic Fit" field="score_strategic" value={item.score_strategic} />
+                      <ScoringInput label="Feasibility" field="score_feasibility" value={item.score_feasibility} />
+                      <ScoringInput label="Urgency" field="score_urgency" value={item.score_urgency} />
+                      <ScoringInput label="Data Readiness" field="score_data" value={item.score_data} />
+                    </div>
+
+                    <div className="mt-8 pt-6 border-t border-grey-50 flex items-center justify-between">
+                      <span className="text-[9px] font-bold text-grey-400 tracking-widest uppercase">Composite Index</span>
+                      <div className="flex items-center gap-3">
+                         <span className="text-2xl font-bold italic text-navy tabular-nums">{(getOverallScore(item) || 0).toFixed(1)}</span>
+                         <ScoringSpheres score={getOverallScore(item) || 0} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-grey-100 p-6 rounded-card shadow-sm">
+                    <h4 className="text-[10px] font-medium text-grey-400 mb-6 italic flex items-center gap-2">
+                       <ShieldCheck size={14} className="text-indigo" /> Compliance
+                    </h4>
+                    <div className="space-y-4">
+                       <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-medium text-navy">DPO Check</span>
+                          {item.dpo_approved ? <CheckCircle2 size={16} className="text-success" /> : <div className="w-4 h-4 rounded-pill border-2 border-grey-100" />}
+                       </div>
+                       <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-medium text-navy">Security</span>
+                          {item.security_approved ? <CheckCircle2 size={16} className="text-success" /> : <div className="w-4 h-4 rounded-pill border-2 border-grey-100" />}
+                       </div>
+                       <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-medium text-navy">Architecture</span>
+                          {item.architecture_approved ? <CheckCircle2 size={16} className="text-success" /> : <div className="w-4 h-4 rounded-pill border-2 border-grey-100" />}
+                       </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-grey-50 p-6 rounded-card border border-grey-100 overflow-hidden">
+                    <div className="flex items-center gap-2 mb-4">
+                       <Clock size={14} className="text-indigo" />
+                       <span className="text-[10px] font-medium text-navy italic">Timeline Details</span>
+                    </div>
+                    <div className="space-y-3">
+                       <div>
+                          <p className="text-[8px] font-medium text-grey-300">Entry Date</p>
+                          <p className="text-[10px] font-medium text-navy italic">{new Date(item.created_at).toLocaleString()}</p>
+                       </div>
+                       <div>
+                          <p className="text-[8px] font-medium text-grey-300">Intended Deadline</p>
+                          <p className="text-[10px] font-medium text-navy italic">{item.deadline || 'ASAP'}</p>
+                       </div>
+                       {item.next_review_date && (
+                         <div className="pt-2">
+                            <p className="text-[8px] font-medium text-indigo">Next Scheduled Review</p>
+                            <p className="text-[10px] font-medium text-indigo italic tabular-nums">{item.next_review_date}</p>
+                         </div>
+                       )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 bg-grey-50 border-t border-grey-100 flex justify-end">
+              <button 
+                onClick={onClose}
+                className="px-10 py-4 bg-navy text-white rounded-btn text-[10px] font-medium tracking-[0.3em] shadow-md-kaizen hover:bg-indigo transition-standard"
+              >
+                Close Viewport
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -697,9 +1064,20 @@ function IntakeWizard({ user, onCaseSubmit }: { user: any, onCaseSubmit: (c: Uni
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [completedCase, setCompletedCase] = useState<Partial<UnifiedCase> | null>(null);
+  const [submittedCase, setSubmittedCase] = useState<UnifiedCase | null>(null);
+  const [caseSummary, setCaseSummary] = useState<string>('');
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [candidateData, setCandidateData] = useState<Partial<UnifiedCase>>({});
   const [currentChoices, setCurrentChoices] = useState<{type:'single'|'multi', field:string, options:string[]} | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
+    }
+  }, [input]);
 
   const WIZARD_PROMPT = `
 You are ZHDUN, the strategic intake specialist for Kaizen Gaming's Transformation team.
@@ -717,35 +1095,49 @@ On the first message, determine intake type based on the user's initial selectio
 - AI: pure AI/LLM/GenAI initiative  
 - HYBRID: process improvement that includes an AI component
 
+If the user selects "Not Sure" for classification, you MUST explain:
+- AI Initiative: Building or deploying an internal AI-powered application, tool, or model.
+- Optimization Project: A process improvement initiative that the Transformation/Optimization team will own and deliver.
+
 Never mention PROJECT/AI/HYBRID or T1/T2/T3 to the user. These are internal only.
 
-─── TIER SCORING (SILENT, AI CASES ONLY) ───
-Maintain a running tier_score (0–20) as you learn about an AI initiative.
-Add points as follows:
-+4 if external/3rd-party LLM (not internal model)
+─── TIER SCORING (SILENT, ALL CASES) ───
+Maintain a running tier_score (0–20) as you learn about the initiative.
+Add points for ALL initiatives (AI or PROJECT):
++4 if external/3rd-party tech/LLM (not internal model)
++4 if cross-departmental impact
 +3 if customer-facing (not internal-only users)
++3 if >€100k projected investment or savings
 +3 if any PII data involved
 +3 if financial or regulated data involved
-+2 if health/sensitive data involved
 +2 if integrated with production systems
 +2 if used in regulated process (AML, KYC, responsible gambling)
 +1 if >100 users in scope
 
-Tier mapping: 0-5 = T1, 6-12 = T2, 13-20 = T3
-CRITICAL: If tier_score >= 6 (T2 or T3), you MUST ask about expected_benefits before closing.
-Never tell the user their tier.
+Tier mapping (Captured as "tier" field):
+0-7   = T3 (Quick Win: Small impact, simple automation, immediate impact)
+8-14  = T2 (Tactical: Medium impact, department-specific, 6-12 month ROI)
+15-20 = T1 (Strategic: High impact, cross-departmental, touches Core Product)
+
+CRITICAL: If tier_score >= 8 (T2 or T1), you MUST capture expected_benefits before closing.
+Never tell the user their tier or score.
 
 ─── FIELD CHECKLIST ───
 For PROJECT intake, capture ALL of:
-project_title, requestor_department, markets_affected, problem_statement, expected_outcome,
-volume_per_month (numeric), hours_per_case (numeric), team_profile, duration, teams_involved,
-soft_benefits, strategic_driver, deadline
+project_title, requestor_department, markets_affected, problem_statement, 
+expected_outcome (CRITICAL: Insist for detail), volume_per_month (numeric), 
+hours_per_case (numeric), team_profile, duration, teams_involved, soft_benefits, 
+strategic_driver, deadline
 
 For AI intake, capture ALL of:
 initiative_title (maps to project_title), requestor_department, initiative_description,
-expected_outcome, use_type, intended_purpose, users_scope, markets_affected, data_types,
-ai_tool, system_integrations, additional_context (ask at end: "Anything else to add?"),
-expected_benefits (ONLY if tier_score >= 6)
+expected_outcome (CRITICAL: Insist for detail), intended_purpose, users_scope, 
+markets_affected, data_types, ai_tool, system_integrations, 
+additional_context (ask at end: "Anything else to add?"),
+expected_benefits (ONLY if tier_score >= 15)
+
+─── OTHER SELECTION ───
+If the user selects "Other" for intended_purpose or expected_benefits, you MUST politely ask them to describe the specific detail or benefit in their own words. Do NOT proceed until they provide this information.
 
 ─── COMPUTED FIELDS (DO SILENTLY, INCLUDE IN CASE_COMPLETE) ───
 annual_hours = volume_per_month × hours_per_case × 12
@@ -760,7 +1152,7 @@ Salary table (annual base):
 
 T-shirt size: S = <500 annual_hours, M = 500-2000, L = 2000-5000, XL = >5000
 
-Strategic driver mapping (ask user to pick one, show as choices):
+Strategic driver mapping:
 "Hey Betano" = AI Transformation
 "Shield Betano" = Risk & Governance  
 "Betano Republic" = Market Expansion
@@ -773,15 +1165,25 @@ The user will see clickable buttons — do NOT list the options in your text.
 Format: CHOICES:{"type":"single"|"multi","field":"fieldname","options":["Option1","Option2"...]}
 
 Use CHOICES for:
-- markets_affected → CHOICES:{"type":"multi","field":"markets_affected","options":["Greece","Cyprus","Malta","Bulgaria","Romania","Czech Republic","United Kingdom","Germany","Denmark","Brazil","Mexico","Argentina","All Markets"]}
+- initial_classification → CHOICES:{"type":"single","field":"initial_classification","options":["AI initiative","Optimization Project","Not sure"]}
+- markets_affected → CHOICES:{"type":"multi","field":"markets_affected","options":["Malta","Bulgaria","Romania","Czech Republic","United Kingdom","Germany","Denmark","Brazil","Mexico","Argentina","All Markets"]}
 - strategic_driver → CHOICES:{"type":"single","field":"strategic_driver","options":["Hey Betano","Shield Betano","Betano Republic","Core Betano"]}
-- use_type → CHOICES:{"type":"single","field":"use_type","options":["Internal Staff Only","Customer-Facing","Both"]}
-- data_types → CHOICES:{"type":"multi","field":"data_types","options":["Personal / PII","Financial Data","Behavioral / Clickstream","Health / Sensitive","Proprietary Business Data","No Sensitive Data"]}
-- ai_tool → CHOICES:{"type":"single","field":"ai_tool","options":["ChatGPT / GPT-4","Claude / Anthropic","Gemini","Internal / Custom Model","Other"]}
+- data_types → CHOICES:{"type":"multi","field":"data_types","options":["Personal / PII","Financial Data","Customer Data","No Sensitive Data"]}
+- ai_tool → CHOICES:{"type":"single","field":"ai_tool","options":["Claude (Anthropic)","Gemini","Google AI Studio","Not Sure"]}
 - users_scope → CHOICES:{"type":"single","field":"users_scope","options":["Internal Staff Only","Our Customers","Both Internal & Customers"]}
 - team_profile → CHOICES:{"type":"single","field":"team_profile","options":["Junior-heavy","Mixed Team","Senior-heavy","Management Level"]}
+- expected_benefits → CHOICES:{"type":"single","field":"expected_benefits","options":["Cost Savings","Efficiency Gain","User Experience","Risk Mitigation","Compliance Accuracy","Other"]}
 - duration → CHOICES:{"type":"single","field":"duration","options":["Under 1 month","1–3 months","3–6 months","6–12 months","Over 12 months"]}
-- intended_purpose → CHOICES:{"type":"single","field":"intended_purpose","options":["Content Generation","Decision Support","Data Analysis","Process Automation","Customer Service / Chatbot","Risk & Compliance","Other"]}
+- intended_purpose → CHOICES:{"type":"multi","field":"intended_purpose","options":["Content Generation","Decision Support","Data Analysis","Process Automation","Customer Service / Chatbot","Risk & Compliance","Other"]}
+
+─── AI TOOL SELECTION LOGIC ───
+If the user indicates they are unsure about which AI tool to choose (e.g., selects "Not Sure"):
+1. Provide a one-time concise explanation of the tools:
+   - Claude (Anthropic): Best for complex reasoning, large contexts, and subtle writing.
+   - Gemini: Ideal for Google integration and native multimodal capabilities.
+   - Google AI Studio: Perfect for rapid prototyping and trying the newest models.
+2. If the user is still unsure after your help, analyze their initiative's needs and recommend the best-fit tool based on their specific case. 
+3. If they remain undecided, tell them it's fine and set the ai_tool to "I don't know" to proceed.
 
 ─── SIGNALS ───
 Always append STATE:{<partial fields>} to every message (hidden from user).
@@ -819,7 +1221,6 @@ CASE_COMPLETE JSON for AI:
   "requestor_department": "",
   "initiative_description": "",
   "expected_outcome": "",
-  "use_type": "",
   "intended_purpose": "",
   "users_scope": "",
   "markets_affected": "",
@@ -926,42 +1327,65 @@ CASE_COMPLETE JSON for AI:
 
   const handleSend = () => handleSendValue(input);
 
-  const submitToPipeline = () => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const submitToPipeline = async () => {
     if (!completedCase) return;
 
-    confetti({
-      particleCount: 150,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#92B0A9', '#FFB380', '#A3B9A8']
-    });
+    setIsGeneratingSummary(true);
+    try {
+      const summaryPrompt = `Generate a punchy, professional one-liner summary (max 15 words) for this initiative: 
+      Title: ${completedCase.project_title}
+      Description: ${completedCase.case_type === CaseType.AI ? completedCase.initiative_description : completedCase.problem_statement}
+      Expected Outcome: ${completedCase.expected_outcome}`;
+      
+      const summary = await callGeminiOnce(summaryPrompt);
+      setCaseSummary(summary);
 
-    const finalCase: UnifiedCase = {
-      ...completedCase as UnifiedCase,
-      id: Date.now().toString(),
-      userId: user.uid,
-      created_at: new Date().toISOString(),
-      decided_at: null,
-      status: ProjectStatus.PENDING,
-      decision: null,
-      score_problem: 0,
-      score_benefit: 0,
-      score_strategic: 0,
-      score_feasibility: 0,
-      score_urgency: 0,
-      score_data: 0,
-      assessment_notes: "",
-      requestor_name: user?.displayName || "Anonymous",
-      requestor_email: user?.email || "",
-      flags: completedCase.flags || [],
-      impl_cost: "0",
-      payback_months: "0"
-    };
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#92B0A9', '#FFB380', '#A3B9A8']
+      });
 
-    onCaseSubmit(finalCase);
-    setHistory([{ role: 'assistant', content: "Transmission confirmed. Your initiative is now in the pipeline." }]);
-    setCompletedCase(null);
-    setCandidateData({});
+      const finalCase: UnifiedCase = {
+        ...completedCase as UnifiedCase,
+        id: Date.now().toString(),
+        userId: user.uid,
+        created_at: new Date().toISOString(),
+        decided_at: null,
+        status: ProjectStatus.PENDING,
+        decision: null,
+        score_problem: 0,
+        score_benefit: 0,
+        score_strategic: 0,
+        score_feasibility: 0,
+        score_urgency: 0,
+        score_data: 0,
+        assessment_notes: "",
+        requestor_name: user?.displayName || "Anonymous",
+        requestor_email: user?.email || "",
+        flags: completedCase.flags || [],
+        impl_cost: "0",
+        payback_months: "0"
+      };
+
+      await onCaseSubmit(finalCase);
+      setSubmittedCase(finalCase);
+      setHistory(prev => [...prev, { role: 'assistant', content: "Transmission confirmed. Your initiative is now in the pipeline." }]);
+      setCompletedCase(null);
+      setCandidateData({});
+    } catch (err) {
+      console.error("Summary generation or submission failed:", err);
+    } finally {
+      setIsGeneratingSummary(false);
+    }
   };
 
   const PHASES = [
@@ -983,41 +1407,30 @@ CASE_COMPLETE JSON for AI:
   const progressPercent = Math.min(100, Math.round((Object.keys(candidateData).length / 12) * 100));
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:h-[calc(100vh-140px)] overflow-y-auto lg:overflow-hidden font-sans">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 font-sans h-full overflow-hidden">
       {/* Sidebar */}
-      <div className="hidden lg:flex flex-col gap-4">
-        <div className="bg-white rounded-card border border-grey-100 p-6 shadow-sm-kaizen">
+      <div className="hidden lg:flex flex-col gap-4 h-full overflow-hidden">
+        <div className="bg-white rounded-card border border-grey-100 p-6 shadow-sm-kaizen flex-1 flex flex-col overflow-hidden">
           <h3 className="font-bold text-xs uppercase tracking-[0.2em] mb-6 flex items-center gap-2 text-navy">
             <Activity className="text-indigo" size={14} /> Intake Rhythm
           </h3>
-          <div className="w-full bg-grey-50 h-2 rounded-pill overflow-hidden mb-3 border border-grey-100">
-            <motion.div 
-              className="bg-indigo h-full shadow-sm" 
-              initial={{ width: 0 }}
-              animate={{ width: `${progressPercent}%` }}
-            />
-          </div>
-          <p className="text-[9px] font-bold text-grey-400 uppercase tracking-widest tabular-nums">{progressPercent}% ORCHESTRATED</p>
-
-          <div className="mt-10 space-y-5">
+          <div className="space-y-4 mb-8">
             {PHASES.map((p, i) => {
               const status = getPhaseStatus(i);
               return (
                 <div key={i} className="flex items-center gap-3">
                   <div className={`w-2 h-2 rounded-pill transition-all duration-700 ${status === 'completed' ? 'bg-indigo' : status === 'active' ? 'bg-indigo ring-4 ring-indigo-lt' : 'bg-grey-100'}`} />
-                  <span className={`text-[10px] font-bold uppercase tracking-widest ${status === 'pending' ? 'text-grey-300' : 'text-navy italic'}`}>{p.name}</span>
+                  <span className={`text-[10px] font-medium tracking-widest ${status === 'pending' ? 'text-grey-300' : 'text-navy italic'}`}>{p.name}</span>
                 </div>
               );
             })}
           </div>
-        </div>
 
-        <div className="bg-white rounded-card border border-grey-100 p-6 shadow-sm-kaizen flex-1 flex flex-col overflow-hidden">
-          <h4 className="text-[9px] font-bold text-grey-400 uppercase tracking-widest mb-4">Captured Nodes</h4>
+          <h4 className="text-[9px] font-medium text-grey-400 mb-4">Captured Nodes</h4>
           <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-hide">
             {Object.entries(candidateData).filter(([_,v]) => v).map(([k,v]) => (
               <div key={k} className="p-3 bg-grey-50 border border-grey-100 rounded-inner flex items-center justify-between group hover:bg-white transition-standard">
-                <span className="text-[9px] font-bold text-grey-400 uppercase tracking-tight truncate mr-2">{k.replace(/_/g, ' ')}</span>
+                <span className="text-[9px] font-medium text-grey-400 tracking-tight truncate mr-2">{k.replace(/_/g, ' ')}</span>
                 <CheckCircle2 size={12} className="text-indigo shrink-0" />
               </div>
             ))}
@@ -1028,17 +1441,30 @@ CASE_COMPLETE JSON for AI:
 
       {/* Chat */}
       <div className="lg:col-span-3 flex flex-col bg-white rounded-card border border-grey-100 shadow-sm-kaizen overflow-hidden relative">
-        <div className="p-5 border-b border-grey-100 flex items-center justify-between bg-white/50 backdrop-blur-md sticky top-0 z-10">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-navy text-white rounded-inner flex items-center justify-center font-bold italic shadow-md">Z</div>
-            <div>
-              <h2 className="font-bold text-sm tracking-tight">Catalyst Interview</h2>
-              <p className="text-[9px] font-bold text-indigo uppercase tracking-widest italic tabular-nums">Unified Node V5.1</p>
+        <div className="p-5 border-b border-grey-100 flex flex-col gap-4 bg-white/50 backdrop-blur-md sticky top-0 z-20">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-navy text-white rounded-inner flex items-center justify-center font-medium italic shadow-md">Z</div>
+              <div>
+                <h2 className="font-medium text-sm tracking-tight">Zhdun Interview</h2>
+              </div>
             </div>
+            <div className="text-right">
+              <p className="text-[9px] font-medium text-indigo tracking-widest tabular-nums">{progressPercent}% Orchestrated</p>
+            </div>
+          </div>
+          
+          <div className="w-full bg-grey-50 h-1.5 rounded-pill overflow-hidden border border-grey-100">
+            <motion.div 
+              className="bg-indigo h-full shadow-sm" 
+              initial={{ width: 0 }}
+              animate={{ width: `${progressPercent}%` }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            />
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide bg-cream/20">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-cream/20">
           {history.map((msg, idx) => (
             <motion.div
               key={idx}
@@ -1047,7 +1473,7 @@ CASE_COMPLETE JSON for AI:
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div className={`max-w-[85%] flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className={`w-8 h-8 rounded-pill shrink-0 flex items-center justify-center text-white font-bold text-[10px] shadow-sm ${msg.role === 'user' ? 'bg-navy' : 'bg-indigo'}`}>
+                <div className={`w-8 h-8 rounded-pill shrink-0 flex items-center justify-center text-white font-medium text-[10px] shadow-sm ${msg.role === 'user' ? 'bg-navy' : 'bg-indigo'}`}>
                   {msg.role === 'user' ? 'U' : 'Z'}
                 </div>
                 <div className={`p-4 rounded-card text-sm leading-relaxed shadow-sm ${msg.role === 'user' ? 'bg-navy text-white rounded-tr-none' : 'bg-white text-navy border border-grey-100 rounded-tl-none font-medium'}`}>
@@ -1059,7 +1485,7 @@ CASE_COMPLETE JSON for AI:
           {isTyping && (
             <div className="flex justify-start">
               <div className="max-w-[80%] flex gap-4">
-                <div className="w-8 h-8 rounded-pill bg-indigo shrink-0 flex items-center justify-center text-white font-bold text-[10px]">Z</div>
+                <div className="w-8 h-8 rounded-pill bg-indigo shrink-0 flex items-center justify-center text-white font-medium text-[10px]">Z</div>
                 <div className="p-4 rounded-card bg-white border border-grey-100 rounded-tl-none flex items-center gap-2 shadow-sm">
                   <div className="w-1.5 h-1.5 bg-indigo-dk rounded-pill animate-bounce" />
                   <div className="w-1.5 h-1.5 bg-indigo-dk rounded-pill animate-bounce [animation-delay:0.2s]" />
@@ -1084,61 +1510,123 @@ CASE_COMPLETE JSON for AI:
             />
           )}
 
+          {submittedCase && (
+            <motion.div 
+              initial={{ opacity: 0, y: 30, rotateX: 20 }}
+              animate={{ opacity: 1, y: 0, rotateX: 0 }}
+              className="bg-navy border-4 border-white/10 rounded-card p-10 shadow-2xl relative overflow-hidden text-white"
+              style={{ perspective: '1000px' }}
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo/10 rounded-pill -mr-32 -mt-32 blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-gold-lt/5 rounded-pill -ml-24 -mb-24 blur-2xl" />
+              
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-8">
+                  <div>
+                    <h3 className="text-[10px] font-medium text-white/40 mb-2">Initiative Passport</h3>
+                    <h2 className="text-4xl font-medium italic tracking-tighter leading-none">{submittedCase.project_title}</h2>
+                  </div>
+                  <div className="w-16 h-16 bg-white/5 rounded-inner flex items-center justify-center border border-white/10">
+                    <Rocket className="text-indigo" size={32} />
+                  </div>
+                </div>
+
+                <div className="bg-white/5 backdrop-blur-md rounded-inner p-6 mb-8 border border-white/10">
+                  <p className="text-[9px] font-medium text-indigo tracking-widest mb-3 flex items-center gap-2">
+                    <Bot size={12} /> AI Strategy Insight
+                  </p>
+                  <p className="text-xl font-medium italic leading-relaxed text-white">
+                    "{caseSummary || 'Orchestrating transformation via intelligent automation.'}"
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-6 mb-10 pb-8 border-b border-white/10">
+                  <div>
+                    <p className="text-[8px] font-medium text-white/30 mb-1">Impact Radius</p>
+                    <p className="text-xs font-medium font-mono tracking-tight">{submittedCase.markets_affected}</p>
+                  </div>
+                  <div>
+                    <p className="text-[8px] font-medium text-white/30 mb-1">Projected ROI</p>
+                    <p className="text-xs font-medium font-mono text-success">{submittedCase.case_type === CaseType.AI ? 'High Strategic' : formatCurrency(submittedCase.annual_fte_cost || 0)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[8px] font-medium text-white/30 mb-1">Status</p>
+                    <p className="text-xs font-medium tracking-widest text-gold-lt animate-pulse">In Pipeline</p>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => setSubmittedCase(null)}
+                  className="w-full py-4 border border-white/10 text-white rounded-btn font-bold text-[10px] uppercase tracking-[0.4em] hover:bg-white hover:text-navy transition-all duration-500"
+                >
+                  Return to Hub
+                </button>
+              </div>
+              
+              <div className="absolute top-0 right-10 bottom-0 w-px bg-white/5" />
+              <div className="absolute left-0 bottom-10 right-0 h-px bg-white/5" />
+            </motion.div>
+          )}
+
           {completedCase && (
             <motion.div 
               initial={{ opacity: 0, scale: 0.98 }} 
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white border-2 border-indigo/20 rounded-card p-8 shadow-lg-kaizen"
+              className="bg-white border-2 border-indigo/20 rounded-card p-10 shadow-lg-kaizen"
             >
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-2 bg-success-lt text-success rounded-inner shadow-sm line-none">
-                  <CheckCircle2 size={24} />
+              <div className="flex items-center gap-4 mb-10">
+                <div className="w-14 h-14 bg-success-lt text-success rounded-inner shadow-sm flex items-center justify-center">
+                  <CheckCircle2 size={32} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-navy text-xl italic tracking-tight">Draft Orchestrated</h3>
-                  <p className="text-[10px] font-bold text-indigo uppercase tracking-widest mt-0.5">Classification: {completedCase.case_type}</p>
+                  <h3 className="font-medium text-navy text-2xl italic tracking-tighter leading-none">Review Initiative Node</h3>
+                  <p className="text-[10px] font-medium text-indigo tracking-[0.3em] mt-1.5 tabular-nums">Classification: {completedCase.case_type} Protocol</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                 {[
                   { label: 'Title', val: completedCase.project_title },
                   { label: 'Dept', val: completedCase.requestor_department },
-                  { label: 'Impact / yr', val: formatCurrency(completedCase.annual_fte_cost || 0) },
+                  { label: 'Impact / yr', val: completedCase.case_type === CaseType.AI ? 'N/A' : formatCurrency(completedCase.annual_fte_cost || 0) },
                   { label: 'Bet', val: completedCase.strategic_driver },
-                  { label: 'Magnitude', val: `${completedCase.tier} / ${completedCase.tshirt}` },
-                  { label: 'Markets', val: completedCase.markets_affected }
-                ].map((i, idx) => (
-                  <div key={idx} className="bg-grey-50 p-4 rounded-inner border border-grey-100 ring-1 ring-white/50">
-                    <p className="text-[8px] font-bold text-grey-400 uppercase tracking-[0.2em] mb-1.5">{i.label}</p>
-                    <p className="text-[11px] font-bold text-navy truncate italic">{i.val || '---'}</p>
+                  { label: 'Magnitude', val: `${TIER_NAMES[completedCase.tier as string] || completedCase.tier} / ${completedCase.tshirt}` },
+                  { label: 'Markets', val: completedCase.markets_affected },
+                  { label: 'Outcome', val: completedCase.expected_outcome, full: true },
+                  { label: 'Problem', val: completedCase.problem_statement, full: true },
+                  { label: 'Benefits', val: completedCase.expected_benefits || completedCase.soft_benefits, full: true },
+                  { label: 'AI Tool', val: completedCase.ai_tool },
+                  { label: 'Model', val: completedCase.ai_model_name },
+                  { label: 'Purpose', val: completedCase.intended_purpose },
+                  { label: 'Users Scope', val: completedCase.users_scope },
+                  { label: 'Data Type', val: completedCase.data_types },
+                  { label: 'Integrations', val: completedCase.system_integrations },
+                  { label: 'Human-in-Loop', val: completedCase.human_in_loop },
+                  { label: 'Regulated', val: completedCase.regulated_process },
+                  { label: 'Duration', val: completedCase.duration },
+                  { label: 'Teams', val: completedCase.teams_involved },
+                ].filter(i => i.val).map((i, idx) => (
+                  <div key={idx} className={`bg-grey-50 p-5 rounded-inner border border-grey-100 ring-1 ring-white/50 group hover:bg-white transition-standard ${i.full ? 'md:col-span-2 lg:col-span-2' : ''}`}>
+                    <p className="text-[8px] font-medium text-grey-400 mb-2 group-hover:text-indigo transition-colors">{i.label}</p>
+                    <p className={`text-[11px] font-medium text-navy italic leading-snug ${i.full ? '' : 'truncate'}`}>{i.val || '---'}</p>
                   </div>
                 ))}
-                {completedCase.case_type !== CaseType.PROJECT && (
-                   <div className="col-span-3 bg-indigo-lt/30 p-4 rounded-inner border border-indigo/10">
-                     <p className="text-[8px] font-bold text-indigo uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                       <Bot size={12} /> AI Governance Context
-                     </p>
-                     <p className="text-[11px] font-medium text-indigo italic">
-                        Model: <span className="font-bold">{completedCase.ai_model_name || 'Unspecified'}</span> • {completedCase.ai_is_external_data ? 'External Data' : 'Internal Data Only'} • Subjects: {completedCase.ai_data_subjects || 'N/A'}
-                     </p>
-                   </div>
-                )}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-5">
                 <button 
                   onClick={submitToPipeline}
-                  className="flex-1 bg-navy hover:bg-indigo text-white py-4 rounded-btn font-bold uppercase text-[10px] tracking-[0.3em] transition-standard shadow-sm-kaizen group"
+                  disabled={isGeneratingSummary}
+                  className="flex-1 bg-navy hover:bg-indigo text-white py-5 rounded-btn font-medium text-[10px] tracking-[0.4em] transition-all duration-300 shadow-lg-kaizen group disabled:opacity-50"
                 >
-                  <span className="flex items-center justify-center gap-2 text-white">
-                    <Send size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                    Commit to Pipeline
+                  <span className="flex items-center justify-center gap-3">
+                    {isGeneratingSummary ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
+                    {isGeneratingSummary ? 'Orchestrating...' : 'Commit to Pipeline'}
                   </span>
                 </button>
                 <button 
                   onClick={() => setCompletedCase(null)}
-                  className="px-8 py-4 border border-grey-200 text-grey-400 font-bold rounded-btn hover:bg-grey-50 transition-standard uppercase text-[10px] tracking-widest"
+                  className="px-10 py-5 border-2 border-grey-100 text-grey-400 font-bold rounded-btn hover:border-navy hover:text-navy transition-standard uppercase text-[10px] tracking-widest"
                 >
                   Edit Logic
                 </button>
@@ -1149,19 +1637,20 @@ CASE_COMPLETE JSON for AI:
         </div>
 
         {!completedCase && (
-          <div className="p-5 bg-white border-t border-grey-100 flex gap-4">
-            <input
-              type="text"
+          <div className="p-5 bg-white border-t border-grey-100 flex items-end gap-4 shadow-[0_-4px_10px_-5px_rgba(0,0,0,0.05)]">
+            <textarea
+              ref={textareaRef}
+              rows={1}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              onKeyDown={handleKeyDown}
               placeholder="Send orchestrator signal..."
-              className="flex-1 bg-grey-50 border border-grey-100 rounded-btn px-6 py-4 text-sm focus:ring-4 focus:ring-indigo/5 focus:border-indigo/30 transition-standard outline-none font-sans font-medium"
+              className="flex-1 bg-grey-50 border border-grey-100 rounded-btn px-6 py-4 text-sm focus:ring-4 focus:ring-indigo/5 focus:border-indigo/30 transition-standard outline-none font-sans font-medium resize-none max-h-[200px]"
             />
             <button
               onClick={handleSend}
               disabled={isTyping}
-              className="bg-navy text-white w-14 h-14 flex items-center justify-center rounded-btn hover:bg-indigo transition-standard disabled:opacity-50 shadow-md group border border-navy/10"
+              className="bg-navy text-white w-14 h-14 flex items-center justify-center rounded-btn hover:bg-indigo transition-standard disabled:opacity-50 shadow-md group border border-navy/10 shrink-0"
             >
               <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
             </button>
@@ -1174,21 +1663,10 @@ CASE_COMPLETE JSON for AI:
 
 // --- TAB 2: ASSESSMENT PIPELINE ---
 
-function AssessmentPipeline({ cases, onUpdateCase }: { cases: UnifiedCase[], onUpdateCase: (id: string, updates: Partial<UnifiedCase>) => void }) {
-  const [selectedCase, setSelectedCase] = useState<UnifiedCase | null>(null);
-  const [isScoring, setIsScoring] = useState(false);
-
-  // Sync selectedCase when cases array updates from Firestore
-  useEffect(() => {
-    if (selectedCase) {
-      const match = cases.find(c => c.id === selectedCase.id);
-      if (match) setSelectedCase(match);
-    }
-  }, [cases, selectedCase?.id]);
-
+function AssessmentPipeline({ cases, onUpdateCase, onSelectDetailedCase }: { cases: UnifiedCase[], onUpdateCase: (id: string, updates: Partial<UnifiedCase>) => void, onSelectDetailedCase: (c: UnifiedCase) => void }) {
   const columns = [
-    { id: ProjectStatus.PENDING, title: 'Pending Review', accent: 'gold', text: 'text-gold-dk', bg: 'bg-gold-lt' },
-    { id: ProjectStatus.REVIEW, title: 'In Review', accent: 'indigo', text: 'text-indigo', bg: 'bg-indigo-lt' },
+    { id: ProjectStatus.PENDING, title: 'Pending review', accent: 'gold', text: 'text-gold-dk', bg: 'bg-gold-lt' },
+    { id: ProjectStatus.REVIEW, title: 'In review', accent: 'indigo', text: 'text-indigo', bg: 'bg-indigo-lt' },
     { id: ProjectStatus.DECIDED, title: 'Decided', accent: 'grey-400', text: 'text-grey-700', bg: 'bg-grey-100' },
   ];
 
@@ -1196,128 +1674,88 @@ function AssessmentPipeline({ cases, onUpdateCase }: { cases: UnifiedCase[], onU
     if (c.status === ProjectStatus.PENDING) {
       onUpdateCase(c.id, { status: ProjectStatus.REVIEW });
     }
-    // We set selected case locally for the UI panel, 
-    // it will be synced by the useEffect above when DB updates
-    setSelectedCase(c);
+    // Open the full modal as requested
+    onSelectDetailedCase(c);
   };
 
-  const updateSelectedCase = (updates: Partial<UnifiedCase>) => {
-    if (!selectedCase) return;
-    onUpdateCase(selectedCase.id, updates);
-  };
-
-  const handleDecision = (decision: ProjectDecision | AIDecision) => {
-    updateSelectedCase({
+  const handleQuickDecision = (e: React.MouseEvent, c: UnifiedCase, decision: ProjectDecision | AIDecision) => {
+    e.stopPropagation();
+    onUpdateCase(c.id, {
       decision,
       status: ProjectStatus.DECIDED,
       decided_at: new Date().toISOString()
     });
   };
 
-  const calculatedScore = selectedCase ? (
-    (selectedCase.score_problem * 0.2) +
-    (selectedCase.score_benefit * 0.25) +
-    (selectedCase.score_strategic * 0.2) +
-    (selectedCase.score_feasibility * 0.15) +
-    (selectedCase.score_urgency * 0.1) +
-    (selectedCase.score_data * 0.1)
-  ).toFixed(1) : '0.0';
-
-  const getScoreVerdict = (score: string) => {
-    const s = parseFloat(score);
-    if (s >= 4.0) return { text: 'Strong GO', color: 'success' };
-    if (s >= 3.0) return { text: 'Conditional GO', color: 'gold' };
-    if (s >= 2.0) return { text: 'Hold', color: 'gold' };
-    return { text: 'No-Go', color: 'danger' };
-  };
-
-  const verdict = getScoreVerdict(calculatedScore);
-
-  const requestAIScoring = async () => {
-    if (!selectedCase || isScoring) return;
-    setIsScoring(true);
-    
-    const prompt = `
-      Review this transformation business case:
-      Type: ${selectedCase.case_type}
-      Title: ${selectedCase.project_title}
-      Requestor: ${selectedCase.requestor_name} (${selectedCase.requestor_department})
-      Problem: ${selectedCase.problem_statement}
-      Outcome: ${selectedCase.expected_outcome}
-      Annual Savings: ${selectedCase.annual_fte_cost}
-      Strategic Bet: ${selectedCase.strategic_driver}
-      Markets: ${selectedCase.markets_affected}
-      ${selectedCase.case_type !== CaseType.PROJECT ? `AI Context: Model ${selectedCase.ai_model_name}, Ext Data: ${selectedCase.ai_is_external_data}, Subjects: ${selectedCase.ai_data_subjects}` : ''}
-
-      Kaizen Pillars (Big Bets): Hey Betano (AI), Shield Betano (Risk), Betano Republic (Model), Core Betano (Ops).
-
-      Provide suggested 1-5 scores for:
-      1. score_problem (intensity of the problem)
-      2. score_benefit (ROI/Scale)
-      3. score_strategic (Alignment with Big Bets)
-      4. score_feasibility (Ease of implementation)
-      5. score_urgency (Timeline pressure)
-      6. score_data (Data readiness / quality)
-
-      Then write 2 sentences of high-level assessment notes.
-      FORMAT: JSON exactly: {"scores": {"score_problem": p, "score_benefit": b, "score_strategic": s, "score_feasibility": f, "score_urgency": u, "score_data": d}, "notes": ""}
-    `;
-
-      try {
-        const resp = await callGeminiOnce(prompt);
-        const data = JSON.parse(resp);
-        updateSelectedCase({
-          ...data.scores,
-          assessment_notes: data.notes
-        });
-      } catch (e) {
-      console.error(e);
-    } finally {
-      setIsScoring(false);
-    }
-  };
-
   return (
-    <div className="h-full flex flex-col gap-6 overflow-hidden font-sans">
-      <div className="flex h-full gap-6 overflow-x-auto pb-4 scrollbar-hide">
+    <div className="flex flex-col gap-6 h-full overflow-hidden">
+      <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide flex-1">
         {columns.map(col => (
-          <div key={col.id} className="w-[340px] shrink-0 flex flex-col bg-grey-50/50 rounded-card border border-grey-100 overflow-hidden">
+          <div key={col.id} className="w-[380px] shrink-0 flex flex-col bg-grey-50/50 rounded-card border border-grey-100 overflow-hidden">
             <div className={`p-4 border-b border-grey-100 flex items-center justify-between ${col.bg}`}>
-              <h3 className={`font-bold text-[10px] uppercase tracking-widest ${col.text}`}>{col.title}</h3>
-              <span className={`px-2 py-0.5 rounded-pill bg-white text-[9px] font-bold ${col.text} border border-grey-100 tabular-nums`}>
+              <h3 className={`font-medium text-[11px] tracking-widest ${col.text}`}>{col.title}</h3>
+              <span className={`px-2 py-0.5 rounded-pill bg-white text-[10px] font-medium ${col.text} border border-grey-100 tabular-nums`}>
                 {cases.filter(c => c.status === (col.id as unknown as ProjectStatus)).length}
               </span>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-3 space-y-4">
               {cases.filter(c => c.status === (col.id as unknown as ProjectStatus)).map(c => {
-                const colorClass = c.decision === ProjectDecision.GO ? 'success' : c.decision === ProjectDecision.NOGO ? 'danger' : c.decision === ProjectDecision.HOLD ? 'gold' : c.status === ProjectStatus.PENDING ? 'gold' : 'indigo';
+                const calculatedScore = getOverallScore(c);
                 return (
                 <motion.div
                   key={c.id}
                   layoutId={c.id}
-                  whileHover={{ y: -2, scale: 1.01 }}
+                  whileHover={{ y: -4, scale: 1.01 }}
                   onClick={() => handleCardClick(c)}
-                  className={`bg-white p-4 rounded-inner border shadow-sm cursor-pointer transition-standard ${
-                    selectedCase?.id === c.id ? 'border-navy shadow-md-kaizen' : 'border-grey-100 hover:border-grey-200'
-                  }`}
+                  className="bg-white rounded-inner border border-grey-100 shadow-md cursor-pointer transition-standard relative overflow-hidden flex flex-col hover:border-indigo/30 hover:shadow-lg-kaizen"
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <span className={`text-[8px] font-bold uppercase py-0.5 px-1.5 rounded-pill tracking-tight shadow-sm border ${
-                      c.case_type === CaseType.AI ? 'bg-indigo text-white border-indigo' : 
-                      c.case_type === CaseType.HYBRID ? 'bg-navy text-indigo-lt border-navy' : 
-                      'bg-white text-grey-400 border-grey-100'
-                    }`}>
-                      {c.case_type}
-                    </span>
-                    <span className="text-[9px] font-bold text-grey-300 tabular-nums uppercase tracking-tight">{c.tshirt}</span>
+                  {/* Header Accents */}
+                  <div className="h-1.5 w-full flex">
+                    <div className={`flex-1 ${c.case_type === CaseType.AI ? 'bg-gold' : c.case_type === CaseType.HYBRID ? 'bg-indigo' : 'bg-sage'}`} />
+                    <div className="w-1/3 bg-navy/5" />
                   </div>
-                  <h4 className="text-xs font-bold text-navy mb-2 line-clamp-2 leading-snug italic tracking-tight uppercase">
-                    {c.project_title}
-                  </h4>
-                  <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-wider text-grey-400">
-                    <span className="tabular-nums">{formatCurrency(c.annual_fte_cost || 0)}</span>
-                    <span className="opacity-50">• {c.tier}</span>
+
+                  <div className="p-5 flex-1">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex flex-col gap-1">
+                        <span className={`text-[9px] font-medium tracking-wider ${c.case_type === CaseType.AI ? 'text-gold-dk' : 'text-indigo'}`}>
+                          {c.case_type} :: {c.tier}
+                        </span>
+                        <h4 className="text-sm font-medium text-navy leading-tight italic tracking-tight line-clamp-2">
+                          {c.project_title}
+                        </h4>
+                      </div>
+                      <div className="bg-grey-50 border border-grey-100 px-2 py-1 rounded text-[10px] font-medium text-grey-400">
+                        {c.tshirt}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-4 pt-4 border-t border-grey-50">
+                      <div>
+                        <p className="text-[8px] font-medium text-grey-300 tracking-wider mb-1">Impact</p>
+                        <p className="text-[10px] font-medium text-indigo italic tabular-nums">
+                          {c.case_type === CaseType.AI ? 'Strategic' : formatCurrency(c.annual_fte_cost || 0)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[8px] font-medium text-grey-300 tracking-wider mb-1">Score Index</p>
+                        <div className="flex items-center justify-end gap-2 text-[11px] font-medium text-navy tabular-nums italic">
+                           {(calculatedScore || 0).toFixed(1)} <ScoringSpheres score={calculatedScore || 0} />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-grey-50">
+                      <div className="flex items-center gap-1">
+                        <p className="text-[8px] font-medium text-grey-300 tracking-wider">Driver:</p>
+                        <p className="text-[9px] font-medium text-navy/70 italic truncate max-w-[100px]">{c.strategic_driver}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {c.flags?.includes('PII') && <ShieldCheck size={11} className="text-danger opacity-50" />}
+                        <ArrowRight size={11} className="text-indigo/40" />
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
                 );
@@ -1326,227 +1764,6 @@ function AssessmentPipeline({ cases, onUpdateCase }: { cases: UnifiedCase[], onU
           </div>
         ))}
       </div>
-
-      <AnimatePresence>
-        {selectedCase && (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            className="fixed top-20 right-0 bottom-0 w-[420px] bg-white border-l border-grey-100 shadow-2xl z-50 overflow-y-auto custom-scrollbar font-sans"
-          >
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-8">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                     <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-pill border ${
-                        selectedCase.case_type === CaseType.AI ? 'bg-indigo text-white border-indigo' : 
-                        selectedCase.case_type === CaseType.HYBRID ? 'bg-navy text-white border-navy' : 
-                        'bg-grey-100 text-grey-400 border-grey-200'
-                      }`}>
-                        {selectedCase.case_type} Node
-                     </span>
-                     <span className="text-[9px] font-bold text-grey-300 uppercase italic">ID: #{selectedCase.id.slice(-4)}</span>
-                  </div>
-                  <h2 className="text-2xl font-bold text-navy leading-tight tracking-tighter uppercase italic">{selectedCase.project_title}</h2>
-                </div>
-                <button 
-                  onClick={() => setSelectedCase(null)}
-                  className="p-2 hover:bg-grey-100 rounded-pill transition-standard group"
-                >
-                  <X size={20} className="text-grey-300 group-hover:text-navy" />
-                </button>
-              </div>
-
-              {/* Assessment Panel */}
-              <div className="space-y-6">
-                {/* Scoring Header */}
-                <div className="bg-navy p-6 rounded-card text-white relative overflow-hidden group shadow-lg">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-pill -mr-16 -mt-16 group-hover:scale-125 transition-transform duration-1000" />
-                  <div className="flex items-end justify-between relative z-10">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1 leading-none">Unified Index</p>
-                      <div className="text-5xl font-bold italic tracking-tighter tabular-nums leading-none">{calculatedScore}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`px-4 py-1.5 rounded-pill text-[10px] font-bold uppercase tracking-widest bg-white border border-white/10 ${
-                        verdict.color === 'success' ? 'text-success' : 
-                        verdict.color === 'gold' ? 'text-gold-dk' : 
-                        'text-danger'
-                      } shadow-sm mb-2`}>
-                        {verdict.text}
-                      </div>
-                      <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest tabular-nums italic leading-none">Weight: Standard</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Score Sliders */}
-                <div className="bg-grey-50/50 p-6 rounded-card border border-grey-100 grid grid-cols-2 gap-x-8 gap-y-6 shadow-sm">
-                  {[
-                    { label: 'Problem Intensity', field: 'score_problem' },
-                    { label: 'Benefit / ROI', field: 'score_benefit' },
-                    { label: 'Strategic Fit', field: 'score_strategic' },
-                    { label: 'Feasibility', field: 'score_feasibility' },
-                    { label: 'Urgency', field: 'score_urgency' },
-                    { label: 'Data Readiness', field: 'score_data' },
-                  ].map(score => (
-                    <div key={score.field}>
-                      <div className="flex justify-between mb-2">
-                        <span className="text-[9px] font-bold text-grey-400 uppercase tracking-widest italic">{score.label}</span>
-                        <span className="text-[10px] font-bold text-navy tabular-nums">{selectedCase[score.field as keyof UnifiedCase] as number}/5</span>
-                      </div>
-                      <input 
-                        type="range" min="0" max="5" step="1"
-                        value={selectedCase[score.field as keyof UnifiedCase] as number}
-                        onChange={(e) => updateSelectedCase({ [score.field]: parseInt(e.target.value) })}
-                        className="w-full accent-indigo"
-                      />
-                    </div>
-                  ))}
-                  <div className="col-span-2 pt-4 border-t border-grey-100">
-                    <p className="text-[9px] text-grey-400 italic text-center mb-2">Automated scoring initialized via pipeline logic</p>
-                  </div>
-                </div>
-
-                {/* Notes */}
-                <div className="bg-white border border-grey-100 p-6 rounded-card shadow-sm group">
-                  <h4 className="text-[10px] font-bold text-grey-400 uppercase tracking-widest mb-4 flex items-center gap-2 italic">
-                    <FileText size={14} className="text-indigo" /> Assessment Record
-                  </h4>
-                  <textarea 
-                    value={selectedCase.assessment_notes || ''}
-                    onChange={(e) => updateSelectedCase({ assessment_notes: e.target.value })}
-                    className="w-full h-24 bg-transparent border-none focus:ring-0 text-sm italic text-navy font-medium p-0 leading-relaxed placeholder:text-grey-200"
-                    placeholder="Enter strategic observations..."
-                  />
-                </div>
-
-                {/* Case Type Context */}
-                {selectedCase.case_type !== CaseType.PROJECT && (
-                   <div className="bg-navy p-6 rounded-card border border-navy shadow-lg relative overflow-hidden group">
-                     <div className="absolute top-0 right-0 w-24 h-24 bg-indigo/20 rounded-pill -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-1000" />
-                     <h4 className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-6 flex items-center gap-2 italic">
-                        <Bot size={14} className="text-indigo-lt" /> Intelligence Protocols
-                     </h4>
-                     <div className="grid grid-cols-2 gap-6">
-                        <div className="bg-white/5 p-3 rounded-inner border border-white/10">
-                          <p className="text-[8px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Model Architecture</p>
-                          <p className="text-xs font-bold text-white italic truncate">{selectedCase.ai_model_name || 'Generic LLM'}</p>
-                        </div>
-                        <div className="bg-white/5 p-3 rounded-inner border border-white/10">
-                          <p className="text-[8px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Data Boundary</p>
-                          <p className="text-xs font-bold text-white italic">{selectedCase.ai_is_external_data ? 'External Node' : 'Enclosed Env'}</p>
-                        </div>
-                        <div className="col-span-2 bg-white/5 p-3 rounded-inner border border-white/10">
-                          <p className="text-[8px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Data Subjects</p>
-                          <p className="text-xs font-bold text-white italic truncate leading-none">{selectedCase.ai_data_subjects || 'N/A'}</p>
-                        </div>
-                     </div>
-                   </div>
-                )}
-
-                {/* T3 AI Governance Checkboxes */}
-                {selectedCase.case_type !== CaseType.PROJECT && selectedCase.tier === 'T3' && (
-                  <div className="bg-white border border-grey-100 p-6 rounded-card shadow-sm space-y-4">
-                    <h4 className="text-[10px] font-bold text-grey-400 uppercase tracking-widest mb-2 flex items-center gap-2 italic">
-                      <ShieldCheck size={14} className="text-danger" /> T3 Governance Anchors
-                    </h4>
-                    <div className="grid grid-cols-1 gap-3">
-                      {[
-                        { label: 'DPO Approval', field: 'dpo_approved' },
-                        { label: 'Security Review', field: 'security_approved' },
-                        { label: 'Arch Council', field: 'architecture_approved' }
-                      ].map(item => (
-                        <label key={item.field} className="flex items-center gap-3 p-3 bg-grey-50 rounded-inner border border-grey-100 cursor-pointer hover:bg-white transition-standard">
-                          <input 
-                            type="checkbox"
-                            checked={!!selectedCase[item.field as keyof UnifiedCase]}
-                            onChange={(e) => updateSelectedCase({ [item.field]: e.target.checked })}
-                            className="w-4 h-4 accent-indigo rounded"
-                          />
-                          <span className="text-xs font-bold text-navy uppercase tracking-tight">{item.label}</span>
-                          {selectedCase[item.field as keyof UnifiedCase] && (
-                            <CheckCircle2 size={12} className="text-success ml-auto" />
-                          )}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Details Section */}
-                <div className="p-6 bg-grey-50/30 rounded-card border border-grey-100 border-dashed space-y-6 shadow-tiny">
-                  <div>
-                    <h4 className="text-[10px] font-bold text-grey-300 uppercase tracking-widest mb-3 italic">Initiative Context</h4>
-                    <p className="text-sm text-navy font-medium leading-relaxed italic">"{selectedCase.problem_statement}"</p>
-                  </div>
-                  <div>
-                    <h4 className="text-[10px] font-bold text-grey-300 uppercase tracking-widest mb-3 italic">Projected Outcome</h4>
-                    <p className="text-sm text-navy font-medium leading-relaxed italic">"{selectedCase.expected_outcome}"</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-3 bg-white border border-grey-100 rounded-inner shadow-tiny">
-                      <p className="text-[8px] font-bold text-grey-400 uppercase tracking-[0.2em] mb-1">Impact Radius</p>
-                      <p className="text-xs font-bold text-navy italic">{selectedCase.markets_affected}</p>
-                    </div>
-                    <div className="p-3 bg-white border border-grey-100 rounded-inner shadow-tiny">
-                      <p className="text-[8px] font-bold text-grey-300 uppercase tracking-[0.2em] mb-1">Strategic Bet</p>
-                      <p className="text-[10px] font-bold text-indigo italic truncate">{selectedCase.strategic_driver}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Final Decision Section */}
-                <div className="pt-6 border-t border-grey-100 pb-10">
-                  <h4 className="text-[10px] font-bold text-grey-400 uppercase tracking-widest mb-6 flex items-center gap-2 italic">
-                    <CheckCircle2 size={14} className="text-success" /> Decision Matrix
-                  </h4>
-                  {selectedCase.case_type !== CaseType.PROJECT ? (
-                    <div className="flex flex-col gap-3">
-                      <div className="flex gap-3">
-                        <button 
-                          onClick={() => handleDecision(AIDecision.REJECTED)}
-                          className="flex-1 px-4 py-3 rounded-btn border border-danger/20 text-danger text-[10px] font-bold uppercase tracking-widest hover:bg-danger hover:text-white transition-standard bg-white shadow-sm"
-                        >
-                          Reject
-                        </button>
-                        <button 
-                          onClick={() => handleDecision(AIDecision.NEEDS_INFO)}
-                          className="flex-1 px-4 py-3 rounded-btn border border-gold-dk/20 text-gold-dk text-[10px] font-bold uppercase tracking-widest hover:bg-gold-dk hover:text-white transition-standard bg-white shadow-sm"
-                        >
-                          Needs Info
-                        </button>
-                      </div>
-                      <button 
-                        onClick={() => handleDecision(AIDecision.APPROVED)}
-                        className="w-full px-4 py-4 rounded-btn bg-success hover:bg-success/90 text-white text-[10px] font-bold uppercase tracking-widest transition-standard shadow-md-kaizen"
-                      >
-                        Approve Governance Node
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex gap-4">
-                      <button 
-                        onClick={() => handleDecision(ProjectDecision.NOGO)}
-                        className="flex-1 px-4 py-4 rounded-btn border border-danger/20 text-danger text-[10px] font-bold uppercase tracking-widest hover:bg-danger hover:text-white transition-standard bg-white shadow-sm"
-                      >
-                        Archive / Reject
-                      </button>
-                      <button 
-                        onClick={() => handleDecision(ProjectDecision.GO)}
-                        className="flex-1 px-4 py-4 rounded-btn bg-success hover:bg-success/90 text-white text-[10px] font-bold uppercase tracking-widest transition-standard shadow-md-kaizen"
-                      >
-                        Approve Initiative
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
@@ -1597,7 +1814,7 @@ function ExecutiveDashboard({ cases }: { cases: UnifiedCase[] }) {
   return (
     <div className="space-y-10 pb-20 font-sans h-full overflow-y-auto pr-2 scrollbar-hide">
       <section>
-        <h3 className="font-bold text-grey-400 text-[10px] uppercase tracking-[0.2em] mb-6 italic">Financial Performance</h3>
+        <h3 className="font-medium text-grey-400 text-[10px] italic mb-6">Financial Performance</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
              { label: 'Total Benefit', val: formatCurrency(totalBenefit), color: 'indigo', icon: LineChart },
@@ -1619,7 +1836,7 @@ function ExecutiveDashboard({ cases }: { cases: UnifiedCase[] }) {
       </section>
 
       <section>
-        <h3 className="font-bold text-grey-400 text-[10px] uppercase tracking-[0.2em] mb-6 italic">Portfolio Velocity</h3>
+        <h3 className="font-medium text-grey-400 text-[10px] mb-6 italic">Portfolio Velocity</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {[
              { label: 'Kill Rate', val: killRate + '%', color: 'danger', icon: AlertCircle },

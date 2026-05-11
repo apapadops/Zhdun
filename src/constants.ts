@@ -97,7 +97,7 @@ export const UNIFIED_DEMO_DATA: UnifiedCase[] = [
     tshirt: TshirtSize.L,
     volume_per_month: "500 markets/day",
     hours_per_case: "0.25",
-    team_profile: "Senior, Greece",
+    team_profile: "Senior, Kaizen",
     annual_fte_cost: "110000",
     annual_hours: "15000",
     fte_saving_est: "8.7",
