@@ -148,6 +148,9 @@ const formatCurrency = (val: string | number) => {
 };
 
 const getStatusColor = (status: ProjectStatus, decision: ProjectDecision | AIDecision | null) => {
+  if (status === ProjectStatus.ACCEPTED) return 'success';
+  if (status === ProjectStatus.REJECTED) return 'danger';
+  if (status === ProjectStatus.NEEDS_INFO) return 'gold';
   if (status === ProjectStatus.PENDING) return 'gold';
   if (status === ProjectStatus.REVIEW) return 'indigo';
   if (decision === ProjectDecision.GO || decision === AIDecision.APPROVED) return 'success';
@@ -178,6 +181,13 @@ const getOverallScore = (c: UnifiedCase) => {
     (c.score_urgency * 0.1) +
     (c.score_data * 0.1)
   );
+};
+
+const getSuggestedOutcome = (score: number) => {
+  if (score >= 4.0) return { text: "Strong GO — prioritise", color: "success" };
+  if (score >= 3.0) return { text: "Conditional GO — address gaps first", color: "indigo" };
+  if (score >= 2.0) return { text: "HOLD — significant rework needed", color: "gold" };
+  return { text: "NO-GO — fundamental issues", color: "danger" };
 };
 
 const EditableMetric = ({ label, value, note, onSave, isCurrency }: { label: string, value: string, note?: string, onSave: (v: string) => void, isCurrency?: boolean }) => {
@@ -293,7 +303,13 @@ function MySubmissionsModule({ cases, onSelectCase }: { cases: UnifiedCase[], on
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
              onClick={() => onSelectCase(c)}
-             className="bg-white rounded-card border border-grey-100 p-6 shadow-sm-kaizen hover:shadow-md-kaizen transition-standard group cursor-pointer border-l-4 border-l-indigo relative overflow-hidden"
+             className={`bg-white rounded-card border border-grey-100 p-6 shadow-sm-kaizen hover:shadow-md-kaizen transition-standard group cursor-pointer border-l-4 relative overflow-hidden ${
+               getStatusColor(c.status, c.decision) === 'gold' ? 'border-l-gold' :
+               getStatusColor(c.status, c.decision) === 'success' ? 'border-l-success' :
+               getStatusColor(c.status, c.decision) === 'danger' ? 'border-l-danger' :
+               getStatusColor(c.status, c.decision) === 'indigo' ? 'border-l-indigo' :
+               'border-l-grey-300'
+             }`}
           >
              <div className="flex justify-between items-start mb-6">
                 <Badge color={c.case_type === CaseType.AI ? 'gold' : c.case_type === CaseType.HYBRID ? 'indigo' : 'sage'}>{c.case_type}</Badge>
@@ -325,7 +341,8 @@ function MySubmissionsModule({ cases, onSelectCase }: { cases: UnifiedCase[], on
                 </div>
                 <div className="col-span-2 pt-2">
                    <p className="text-[8px] font-medium text-grey-300 tracking-wider mb-2">Strategy</p>
-                   <BigBetBadge driver={c.strategic_driver || ''} />
+                   {c.strategic_driver && <BigBetBadge driver={c.strategic_driver} />}
+                   {!c.strategic_driver && <p className="text-[10px] text-grey-300 italic">No Strategic Driver</p>}
                 </div>
              </div>
              
@@ -675,7 +692,7 @@ export default function App() {
                className="h-full"
              >
                <MySubmissionsModule 
-                 cases={cases.filter(c => c.requestor_email === user.email)} 
+                 cases={cases.filter(c => c.userId === user.uid || c.requestor_email === user.email)} 
                  onSelectCase={(c) => setViewingCaseId(c.id)}
                />
              </motion.div>
@@ -747,12 +764,39 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
 
   const isAI = item.case_type === CaseType.AI || item.case_type === CaseType.HYBRID;
 
-  const handleDecision = async (decision: ProjectDecision | AIDecision) => {
-    await onUpdate(item.id, {
-      decision,
-      status: ProjectStatus.DECIDED,
-      decided_at: new Date().toISOString()
-    });
+    const handleDecision = async (status: ProjectStatus, decision: ProjectDecision | AIDecision | null = null) => {
+    let reason = "";
+    if (status === ProjectStatus.REJECTED) {
+      reason = window.prompt("Please provide a reason for rejection:") || "";
+    } else if (status === ProjectStatus.NEEDS_INFO) {
+      reason = window.prompt("What additional information is needed?") || "";
+    }
+
+    const updates: Partial<UnifiedCase> = {
+      status,
+      decision: decision || (status === ProjectStatus.ACCEPTED ? (isAI ? AIDecision.APPROVED : ProjectDecision.GO) : (status === ProjectStatus.REJECTED ? (isAI ? AIDecision.REJECTED : ProjectDecision.NOGO) : (status === ProjectStatus.NEEDS_INFO ? (isAI ? AIDecision.NEEDS_INFO : ProjectDecision.HOLD) : null))),
+      updatedAt: new Date().toISOString()
+    };
+
+    if (status === ProjectStatus.ACCEPTED || status === ProjectStatus.REJECTED) {
+      updates.decided_at = new Date().toISOString();
+    } else if (item.decided_at) {
+      updates.decided_at = item.decided_at;
+    }
+
+    if (status === ProjectStatus.REJECTED) {
+      updates.rejection_reason = reason;
+    } else if (item.rejection_reason) {
+      updates.rejection_reason = item.rejection_reason;
+    }
+
+    if (status === ProjectStatus.NEEDS_INFO) {
+      updates.needs_info_details = reason;
+    } else if (item.needs_info_details) {
+      updates.needs_info_details = item.needs_info_details;
+    }
+
+    await onUpdate(item.id, updates);
   };
 
   const handleScoreChange = async (category: keyof UnifiedCase, score: number) => {
@@ -862,7 +906,7 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
                   </DetailSection>
 
                   <DetailSection title="Strategic Alignment" icon={TrendingUp}>
-                    <DetailItem label="Strategic Driver" value={item.strategic_driver} />
+                    {item.strategic_driver && <DetailItem label="Strategic Driver" value={item.strategic_driver} />}
                     <DetailItem label="Markets Affected" value={item.markets_affected} />
                     <DetailItem label="Impacted Dept." value={item.requestor_department} />
                     <DetailItem label="Requestor" value={item.requestor_name} />
@@ -899,7 +943,7 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
                     </DetailSection>
                   )}
                   
-                  {item.assessment_notes && (
+                  {isAdmin && item.assessment_notes && (
                     <DetailSection title="Assessment Records" icon={FileText}>
                       <DetailItem label="Analyst Notes" value={item.assessment_notes} fullWidth />
                     </DetailSection>
@@ -908,110 +952,115 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
 
                 <div className="space-y-6">
                   {/* Decision Controls (Admin Only or Decided View) */}
-                  <div className="bg-navy p-8 rounded-card text-white relative overflow-hidden group shadow-xl">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-pill -mr-16 -mt-16" />
-                    <p className="text-[10px] font-medium text-white/30 mb-6 uppercase tracking-widest">Decision Hub</p>
-                    
-                    <div className="space-y-4">
-                      {isAdmin && item.status !== ProjectStatus.DECIDED && (
-                        <div className="grid grid-cols-1 gap-2 mb-6">
-                          <button 
-                            onClick={() => handleDecision(ProjectDecision.GO)}
-                            className="w-full py-3 bg-success text-white text-[10px] font-bold rounded-pill shadow-lg hover:bg-success-lt hover:text-success transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-2"
-                          >
-                            <CheckCircle2 size={14} /> Issue Go Verdict
-                          </button>
-                          <button 
-                            onClick={() => handleDecision(ProjectDecision.NOGO)}
-                            className="w-full py-3 bg-danger text-white text-[10px] font-bold rounded-pill shadow-lg hover:bg-danger-lt hover:text-danger transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-2"
-                          >
-                            <X size={14} /> No-Go Decision
-                          </button>
-                          <div className="grid grid-cols-2 gap-2">
+                  {isAdmin && (
+                    <div className="bg-navy p-8 rounded-card text-white relative overflow-hidden group shadow-xl">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-pill -mr-16 -mt-16" />
+                      <p className="text-[10px] font-medium text-white/30 mb-6 uppercase tracking-widest">Decision Hub</p>
+                      
+                      <div className="space-y-4">
+                        {item.status !== ProjectStatus.ACCEPTED && item.status !== ProjectStatus.REJECTED && (
+                          <div className="grid grid-cols-1 gap-2 mb-6">
                             <button 
-                              onClick={() => handleDecision(AIDecision.REJECTED)}
-                              className="py-2.5 bg-white/10 text-white/70 text-[9px] font-bold rounded-pill border border-white/10 hover:bg-white/20 transition-all uppercase tracking-widest"
+                              onClick={() => handleDecision(ProjectStatus.REVIEW)}
+                              className="w-full py-3 bg-indigo text-white text-[10px] font-bold rounded-pill shadow-lg hover:bg-indigo-lt transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-2"
                             >
-                              Reject Node
+                              <Activity size={14} /> Move to Review
                             </button>
                             <button 
-                              onClick={() => handleDecision(AIDecision.NEEDS_INFO)}
-                              className="py-2.5 bg-gold text-navy text-[9px] font-bold rounded-pill shadow-md hover:bg-gold-lt transition-all uppercase tracking-widest"
+                              onClick={() => handleDecision(ProjectStatus.ACCEPTED)}
+                              className="w-full py-3 bg-success text-white text-[10px] font-bold rounded-pill shadow-lg hover:bg-success-lt hover:text-success transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-2"
                             >
-                              Needs Info
+                              <CheckCircle2 size={14} /> Issue Go Verdict
                             </button>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button 
+                                onClick={() => handleDecision(ProjectStatus.REJECTED)}
+                                className="py-2.5 bg-danger text-white text-[9px] font-bold rounded-pill shadow-md hover:bg-danger-lt transition-all uppercase tracking-widest"
+                              >
+                                Reject Node
+                              </button>
+                              <button 
+                                onClick={() => handleDecision(ProjectStatus.NEEDS_INFO)}
+                                className="py-2.5 bg-gold text-navy text-[9px] font-bold rounded-pill shadow-md hover:bg-gold-lt transition-all uppercase tracking-widest"
+                              >
+                                Needs Info
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex justify-between items-center bg-white/5 p-3 rounded border border-white/10">
+                          <span className="text-[9px] font-medium text-white/50 tracking-widest">Magnitude</span>
+                          <span className="text-xl font-medium italic tabular-nums">{item.tshirt}</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center bg-white/5 p-3 rounded border border-white/10">
+                          <span className="text-[9px] font-medium text-white/50 tracking-widest">Pipeline Node</span>
+                          <span className="text-[10px] font-medium tracking-widest text-indigo-lt uppercase">{item.status}</span>
+                        </div>
+
+                        {(item.decision || item.status === ProjectStatus.ACCEPTED || item.status === ProjectStatus.REJECTED) && (
+                          <div className="flex justify-between items-center bg-white/10 p-4 rounded-inner border border-white/20 shadow-inner">
+                            <span className="text-[9px] font-medium text-white/50 tracking-widest uppercase">Verdict</span>
+                            <span className={`text-lg font-bold italic uppercase ${getStatusColor(item.status, item.decision) === 'success' ? 'text-success' : 'text-danger'}`}>
+                              {item.status.toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      {item.decided_at && (
+                        <p className="mt-6 text-[8px] font-medium text-white/20 tracking-widest text-center italic">Node finalized on {new Date(item.decided_at).toLocaleDateString()}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Reasons Display (Always show if relevant) */}
+                  {(item.rejection_reason || item.needs_info_details) && (
+                    <div className="bg-white border border-grey-100 p-6 rounded-card shadow-sm border-l-4 border-l-danger">
+                       <h4 className="text-[10px] font-bold text-navy mb-4 italic flex items-center gap-2 uppercase tracking-widest">
+                         <AlertTriangle size={14} className="text-danger" /> Decision Notes
+                       </h4>
+                       <p className="text-sm font-medium text-navy italic leading-relaxed">
+                         {item.status === ProjectStatus.REJECTED ? item.rejection_reason : item.needs_info_details}
+                       </p>
+                    </div>
+                  )}
+
+                  {/* Enhanced Scoring Layer (Admin Only) */}
+                  {isAdmin && (
+                    <div className="bg-white border border-grey-100 p-8 rounded-card shadow-sm relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-indigo/5 rounded-pill -mr-12 -mt-12" />
+                      <h4 className="text-[10px] font-bold text-navy mb-8 italic flex items-center gap-2 uppercase tracking-widest">
+                         <Activity size={14} className="text-indigo" /> Transformation Score
+                      </h4>
+                      
+                      <div className="space-y-2">
+                        <ScoringInput label="Problem clarity & specificity" field="score_problem" value={item.score_problem} />
+                        <ScoringInput label="Benefit quantification quality" field="score_benefit" value={item.score_benefit} />
+                        <ScoringInput label="Strategic alignment" field="score_strategic" value={item.score_strategic} />
+                        <ScoringInput label="Feasibility & resource availability" field="score_feasibility" value={item.score_feasibility} />
+                        <ScoringInput label="Urgency / business risk if not done" field="score_urgency" value={item.score_urgency} />
+                        <ScoringInput label="Data quality & baseline completeness" field="score_data" value={item.score_data} />
+                      </div>
+
+                      <div className="mt-8 pt-6 border-t border-grey-50">
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="text-[9px] font-bold text-grey-400 tracking-widest uppercase">Composite Index</span>
+                          <div className="flex items-center gap-3">
+                             <span className="text-2xl font-bold italic text-navy tabular-nums">{(getOverallScore(item) || 0).toFixed(1)}</span>
+                             <ScoringSpheres score={getOverallScore(item) || 0} />
                           </div>
                         </div>
-                      )}
-
-                      <div className="flex justify-between items-center bg-white/5 p-3 rounded border border-white/10">
-                        <span className="text-[9px] font-medium text-white/50 tracking-widest">Magnitude</span>
-                        <span className="text-xl font-medium italic tabular-nums">{item.tshirt}</span>
-                      </div>
-                      
-                      <div className="flex justify-between items-center bg-white/5 p-3 rounded border border-white/10">
-                        <span className="text-[9px] font-medium text-white/50 tracking-widest">Pipeline Node</span>
-                        <span className="text-[10px] font-medium tracking-widest text-indigo-lt uppercase">{item.status}</span>
-                      </div>
-
-                      {item.decision && (
-                        <div className="flex justify-between items-center bg-white/10 p-4 rounded-inner border border-white/20 shadow-inner">
-                          <span className="text-[9px] font-medium text-white/50 tracking-widest uppercase">Verdict</span>
-                          <span className={`text-lg font-bold italic uppercase ${getStatusColor(item.status, item.decision) === 'success' ? 'text-success' : 'text-danger'}`}>
-                            {item.decision.replace(/_/g, ' ')}
-                          </span>
+                        
+                        <div className={`p-4 rounded-inner border bg-grey-50 flex flex-col items-center justify-center text-center`}>
+                          <p className="text-[8px] font-bold text-grey-400 uppercase tracking-widest mb-1.5">Suggested Outcome</p>
+                          <Badge color={getSuggestedOutcome(getOverallScore(item)).color}>
+                            {getSuggestedOutcome(getOverallScore(item)).text}
+                          </Badge>
                         </div>
-                      )}
-                    </div>
-                    {item.decided_at && (
-                      <p className="mt-6 text-[8px] font-medium text-white/20 tracking-widest text-center italic">Node finalized on {new Date(item.decided_at).toLocaleDateString()}</p>
-                    )}
-                  </div>
-
-                  {/* Enhanced Scoring Layer */}
-                  <div className="bg-white border border-grey-100 p-8 rounded-card shadow-sm relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-indigo/5 rounded-pill -mr-12 -mt-12" />
-                    <h4 className="text-[10px] font-bold text-navy mb-8 italic flex items-center gap-2 uppercase tracking-widest">
-                       <Activity size={14} className="text-indigo" /> Transformation Score
-                    </h4>
-                    
-                    <div className="space-y-2">
-                      <ScoringInput label="Problem Intensity" field="score_problem" value={item.score_problem} />
-                      <ScoringInput label="Benefit / ROI" field="score_benefit" value={item.score_benefit} />
-                      <ScoringInput label="Strategic Fit" field="score_strategic" value={item.score_strategic} />
-                      <ScoringInput label="Feasibility" field="score_feasibility" value={item.score_feasibility} />
-                      <ScoringInput label="Urgency" field="score_urgency" value={item.score_urgency} />
-                      <ScoringInput label="Data Readiness" field="score_data" value={item.score_data} />
-                    </div>
-
-                    <div className="mt-8 pt-6 border-t border-grey-50 flex items-center justify-between">
-                      <span className="text-[9px] font-bold text-grey-400 tracking-widest uppercase">Composite Index</span>
-                      <div className="flex items-center gap-3">
-                         <span className="text-2xl font-bold italic text-navy tabular-nums">{(getOverallScore(item) || 0).toFixed(1)}</span>
-                         <ScoringSpheres score={getOverallScore(item) || 0} />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="bg-white border border-grey-100 p-6 rounded-card shadow-sm">
-                    <h4 className="text-[10px] font-medium text-grey-400 mb-6 italic flex items-center gap-2">
-                       <ShieldCheck size={14} className="text-indigo" /> Compliance
-                    </h4>
-                    <div className="space-y-4">
-                       <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-medium text-navy">DPO Check</span>
-                          {item.dpo_approved ? <CheckCircle2 size={16} className="text-success" /> : <div className="w-4 h-4 rounded-pill border-2 border-grey-100" />}
-                       </div>
-                       <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-medium text-navy">Security</span>
-                          {item.security_approved ? <CheckCircle2 size={16} className="text-success" /> : <div className="w-4 h-4 rounded-pill border-2 border-grey-100" />}
-                       </div>
-                       <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-medium text-navy">Architecture</span>
-                          {item.architecture_approved ? <CheckCircle2 size={16} className="text-success" /> : <div className="w-4 h-4 rounded-pill border-2 border-grey-100" />}
-                       </div>
-                    </div>
-                  </div>
+                  )}
 
                   <div className="bg-grey-50 p-6 rounded-card border border-grey-100 overflow-hidden">
                     <div className="flex items-center gap-2 mb-4">
@@ -1023,10 +1072,12 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
                           <p className="text-[8px] font-medium text-grey-300">Entry Date</p>
                           <p className="text-[10px] font-medium text-navy italic">{new Date(item.created_at).toLocaleString()}</p>
                        </div>
-                       <div>
-                          <p className="text-[8px] font-medium text-grey-300">Intended Deadline</p>
-                          <p className="text-[10px] font-medium text-navy italic">{item.deadline || 'ASAP'}</p>
-                       </div>
+                       {item.deadline && (
+                         <div>
+                            <p className="text-[8px] font-medium text-grey-300">Intended Deadline</p>
+                            <p className="text-[10px] font-medium text-navy italic">{item.deadline}</p>
+                         </div>
+                       )}
                        {item.next_review_date && (
                          <div className="pt-2">
                             <p className="text-[8px] font-medium text-indigo">Next Scheduled Review</p>
@@ -1059,7 +1110,7 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
 
 function IntakeWizard({ user, onCaseSubmit }: { user: any, onCaseSubmit: (c: UnifiedCase) => void }) {
   const [history, setHistory] = useState<Message[]>([
-    { role: 'assistant', content: `Hello ${user?.displayName?.split(' ')[0] || ''}! I'm ZHDUN, your Transformation Catalyst. I'm here to help you draft your next big initiative. What's on your mind today?` }
+    { role: 'assistant', content: `Hello ${user?.displayName?.split(' ')[0] || ''}! I'm ZHDUN, your Transformation Catalyst. Let's start with the basics. What should we call this initiative?` }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -1106,7 +1157,9 @@ Maintain a running tier_score (0–20) as you learn about the initiative.
 Add points for ALL initiatives (AI or PROJECT):
 +4 if external/3rd-party tech/LLM (not internal model)
 +4 if cross-departmental impact
-+3 if customer-facing (not internal-only users)
++3 if Enterprise Use (Tier 3)
++2 if Department Use (Tier 2)
++1 if Personal Use (Tier 1)
 +3 if >€100k projected investment or savings
 +3 if any PII data involved
 +3 if financial or regulated data involved
@@ -1122,7 +1175,11 @@ Tier mapping (Captured as "tier" field):
 CRITICAL: If tier_score >= 8 (T2 or T1), you MUST capture expected_benefits before closing.
 Never tell the user their tier or score.
 
-─── FIELD CHECKLIST ───
+─── FIELD CHECKLIST (CHRONOLOGICAL PREFERENCE) ───
+1. project_title (or initiative_title)
+2. requestor_department (MUST ASK IMMEDIATELY AFTER TITLE)
+...proceed with others...
+
 For PROJECT intake, capture ALL of:
 project_title, requestor_department, markets_affected, problem_statement, 
 expected_outcome (CRITICAL: Insist for detail), volume_per_month (numeric), 
@@ -1166,15 +1223,21 @@ Format: CHOICES:{"type":"single"|"multi","field":"fieldname","options":["Option1
 
 Use CHOICES for:
 - initial_classification → CHOICES:{"type":"single","field":"initial_classification","options":["AI initiative","Optimization Project","Not sure"]}
-- markets_affected → CHOICES:{"type":"multi","field":"markets_affected","options":["Malta","Bulgaria","Romania","Czech Republic","United Kingdom","Germany","Denmark","Brazil","Mexico","Argentina","All Markets"]}
+- markets_affected → CHOICES:{"type":"multi","field":"markets_affected","options":["Malta","Bulgaria","Romania","Czech Republic","United Kingdom","Germany","Denmark","Brazil","Mexico","Argentina","HQ","All Markets"]}
 - strategic_driver → CHOICES:{"type":"single","field":"strategic_driver","options":["Hey Betano","Shield Betano","Betano Republic","Core Betano"]}
 - data_types → CHOICES:{"type":"multi","field":"data_types","options":["Personal / PII","Financial Data","Customer Data","No Sensitive Data"]}
 - ai_tool → CHOICES:{"type":"single","field":"ai_tool","options":["Claude (Anthropic)","Gemini","Google AI Studio","Not Sure"]}
-- users_scope → CHOICES:{"type":"single","field":"users_scope","options":["Internal Staff Only","Our Customers","Both Internal & Customers"]}
+- users_scope → CHOICES:{"type":"single","field":"users_scope","options":["Personal Use","Department Use","Enterprise Use"]}
 - team_profile → CHOICES:{"type":"single","field":"team_profile","options":["Junior-heavy","Mixed Team","Senior-heavy","Management Level"]}
-- expected_benefits → CHOICES:{"type":"single","field":"expected_benefits","options":["Cost Savings","Efficiency Gain","User Experience","Risk Mitigation","Compliance Accuracy","Other"]}
+- expected_benefits → CHOICES:{"type":"multi","field":"expected_benefits","options":["Cost Savings","Efficiency Gain","User Experience","Risk Mitigation","Compliance Accuracy","Other"]}
 - duration → CHOICES:{"type":"single","field":"duration","options":["Under 1 month","1–3 months","3–6 months","6–12 months","Over 12 months"]}
 - intended_purpose → CHOICES:{"type":"multi","field":"intended_purpose","options":["Content Generation","Decision Support","Data Analysis","Process Automation","Customer Service / Chatbot","Risk & Compliance","Other"]}
+
+─── AI GOVERNANCE CONTEXT (TIERED USE) ───
+If the user is unsure about the scope of use, explain the tiers based on these core objectives:
+- Tier 1 - Personal AI Use: Maximize productivity at zero friction. Strictly individual use, no system integration, no customer/sensitive data, no critical business risk.
+- Tier 2 - Departmental Use: Fast business impact with controlled risk. Department/division/market level, limited system integration, internal data only, clear KPI/business case needed.
+- Tier 3 - Enterprise Use: Scalable, secure, compliant AI. Cross-divisional/multi-market, heavy system integration, customer/sensitive/regulated data, high strategic impact.
 
 ─── AI TOOL SELECTION LOGIC ───
 If the user indicates they are unsure about which AI tool to choose (e.g., selects "Not Sure"):
@@ -1232,7 +1295,6 @@ CASE_COMPLETE JSON for AI:
   "system_integrations": "",
   "additional_context": "",
   "expected_benefits": "",
-  "strategic_driver": "",
   "tier": "T1|T2|T3",
   "tier_score": 0,
   "flags": [],
@@ -1589,7 +1651,8 @@ CASE_COMPLETE JSON for AI:
                   { label: 'Title', val: completedCase.project_title },
                   { label: 'Dept', val: completedCase.requestor_department },
                   { label: 'Impact / yr', val: completedCase.case_type === CaseType.AI ? 'N/A' : formatCurrency(completedCase.annual_fte_cost || 0) },
-                  { label: 'Bet', val: completedCase.strategic_driver },
+                  { label: 'Bet', val: completedCase.case_type !== CaseType.AI ? completedCase.strategic_driver : undefined },
+                  { label: 'Deadline', val: completedCase.case_type !== CaseType.AI ? completedCase.deadline : undefined },
                   { label: 'Magnitude', val: `${TIER_NAMES[completedCase.tier as string] || completedCase.tier} / ${completedCase.tshirt}` },
                   { label: 'Markets', val: completedCase.markets_affected },
                   { label: 'Outcome', val: completedCase.expected_outcome, full: true },
@@ -1667,7 +1730,9 @@ function AssessmentPipeline({ cases, onUpdateCase, onSelectDetailedCase }: { cas
   const columns = [
     { id: ProjectStatus.PENDING, title: 'Pending review', accent: 'gold', text: 'text-gold-dk', bg: 'bg-gold-lt' },
     { id: ProjectStatus.REVIEW, title: 'In review', accent: 'indigo', text: 'text-indigo', bg: 'bg-indigo-lt' },
-    { id: ProjectStatus.DECIDED, title: 'Decided', accent: 'grey-400', text: 'text-grey-700', bg: 'bg-grey-100' },
+    { id: ProjectStatus.NEEDS_INFO, title: 'Needs Info', accent: 'gold', text: 'text-gold-dk', bg: 'bg-gold-lt' },
+    { id: ProjectStatus.ACCEPTED, title: 'Accepted', accent: 'success', text: 'text-success', bg: 'bg-success-lt' },
+    { id: ProjectStatus.REJECTED, title: 'Rejected', accent: 'danger', text: 'text-danger', bg: 'bg-danger-lt' },
   ];
 
   const handleCardClick = (c: UnifiedCase) => {
@@ -1678,15 +1743,6 @@ function AssessmentPipeline({ cases, onUpdateCase, onSelectDetailedCase }: { cas
     onSelectDetailedCase(c);
   };
 
-  const handleQuickDecision = (e: React.MouseEvent, c: UnifiedCase, decision: ProjectDecision | AIDecision) => {
-    e.stopPropagation();
-    onUpdateCase(c.id, {
-      decision,
-      status: ProjectStatus.DECIDED,
-      decided_at: new Date().toISOString()
-    });
-  };
-
   return (
     <div className="flex flex-col gap-6 h-full overflow-hidden">
       <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide flex-1">
@@ -1695,12 +1751,28 @@ function AssessmentPipeline({ cases, onUpdateCase, onSelectDetailedCase }: { cas
             <div className={`p-4 border-b border-grey-100 flex items-center justify-between ${col.bg}`}>
               <h3 className={`font-medium text-[11px] tracking-widest ${col.text}`}>{col.title}</h3>
               <span className={`px-2 py-0.5 rounded-pill bg-white text-[10px] font-medium ${col.text} border border-grey-100 tabular-nums`}>
-                {cases.filter(c => c.status === (col.id as unknown as ProjectStatus)).length}
+                {cases.filter(c => {
+                  if (col.id === ProjectStatus.ACCEPTED && c.status === ProjectStatus.DECIDED) {
+                    return c.decision === ProjectDecision.GO || c.decision === AIDecision.APPROVED;
+                  }
+                  if (col.id === ProjectStatus.REJECTED && c.status === ProjectStatus.DECIDED) {
+                    return c.decision === ProjectDecision.NOGO || c.decision === AIDecision.REJECTED;
+                  }
+                  return c.status === col.id;
+                }).length}
               </span>
             </div>
             
             <div className="flex-1 overflow-y-auto p-3 space-y-4">
-              {cases.filter(c => c.status === (col.id as unknown as ProjectStatus)).map(c => {
+              {cases.filter(c => {
+                if (col.id === ProjectStatus.ACCEPTED && c.status === ProjectStatus.DECIDED) {
+                  return c.decision === ProjectDecision.GO || c.decision === AIDecision.APPROVED;
+                }
+                if (col.id === ProjectStatus.REJECTED && c.status === ProjectStatus.DECIDED) {
+                  return c.decision === ProjectDecision.NOGO || c.decision === AIDecision.REJECTED;
+                }
+                return c.status === col.id;
+              }).map(c => {
                 const calculatedScore = getOverallScore(c);
                 return (
                 <motion.div
@@ -1708,7 +1780,13 @@ function AssessmentPipeline({ cases, onUpdateCase, onSelectDetailedCase }: { cas
                   layoutId={c.id}
                   whileHover={{ y: -4, scale: 1.01 }}
                   onClick={() => handleCardClick(c)}
-                  className="bg-white rounded-inner border border-grey-100 shadow-md cursor-pointer transition-standard relative overflow-hidden flex flex-col hover:border-indigo/30 hover:shadow-lg-kaizen"
+                  className={`bg-white rounded-inner border border-grey-100 shadow-md cursor-pointer transition-standard relative overflow-hidden flex flex-col hover:border-indigo/30 hover:shadow-lg-kaizen border-l-4 ${
+                    getStatusColor(c.status, c.decision) === 'gold' ? 'border-l-gold' :
+                    getStatusColor(c.status, c.decision) === 'success' ? 'border-l-success' :
+                    getStatusColor(c.status, c.decision) === 'danger' ? 'border-l-danger' :
+                    getStatusColor(c.status, c.decision) === 'indigo' ? 'border-l-indigo' :
+                    'border-l-grey-300'
+                  }`}
                 >
                   {/* Header Accents */}
                   <div className="h-1.5 w-full flex">
@@ -1739,9 +1817,12 @@ function AssessmentPipeline({ cases, onUpdateCase, onSelectDetailedCase }: { cas
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[8px] font-medium text-grey-300 tracking-wider mb-1">Score Index</p>
-                        <div className="flex items-center justify-end gap-2 text-[11px] font-medium text-navy tabular-nums italic">
-                           {(calculatedScore || 0).toFixed(1)} <ScoringSpheres score={calculatedScore || 0} />
+                        <p className="text-[8px] font-medium text-grey-300 tracking-wider mb-1">Outcome</p>
+                        <div className="flex items-center justify-end gap-2 text-[10px] font-bold tabular-nums italic">
+                           <span className={`text-${getSuggestedOutcome(calculatedScore).color}`}>
+                             {getSuggestedOutcome(calculatedScore).text.split(' — ')[0]}
+                           </span>
+                           <span className="text-navy">{(calculatedScore || 0).toFixed(1)}</span>
                         </div>
                       </div>
                     </div>
@@ -1749,10 +1830,9 @@ function AssessmentPipeline({ cases, onUpdateCase, onSelectDetailedCase }: { cas
                     <div className="flex items-center justify-between mt-auto pt-4 border-t border-grey-50">
                       <div className="flex items-center gap-1">
                         <p className="text-[8px] font-medium text-grey-300 tracking-wider">Driver:</p>
-                        <p className="text-[9px] font-medium text-navy/70 italic truncate max-w-[100px]">{c.strategic_driver}</p>
+                        <p className="text-[9px] font-medium text-navy/70 italic truncate max-w-[100px]">{c.strategic_driver || 'N/A'}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        {c.flags?.includes('PII') && <ShieldCheck size={11} className="text-danger opacity-50" />}
                         <ArrowRight size={11} className="text-indigo/40" />
                       </div>
                     </div>
@@ -1771,15 +1851,15 @@ function AssessmentPipeline({ cases, onUpdateCase, onSelectDetailedCase }: { cas
 // --- TAB 3: EXECUTIVE DASHBOARD ---
 
 function ExecutiveDashboard({ cases }: { cases: UnifiedCase[] }) {
-  const goCases = cases.filter(c => c.decision === ProjectDecision.GO);
-  const decidedCases = cases.filter(c => c.status === ProjectStatus.DECIDED);
+  const goCases = cases.filter(c => c.status === ProjectStatus.ACCEPTED || c.decision === ProjectDecision.GO || c.decision === AIDecision.APPROVED);
+  const decidedCases = cases.filter(c => [ProjectStatus.DECIDED, ProjectStatus.ACCEPTED, ProjectStatus.REJECTED].includes(c.status));
   
   const totalBenefit = goCases.reduce((acc, c) => acc + (parseFloat(c.annual_fte_cost as any) || 0), 0);
   const totalImplCost = goCases.reduce((acc, c) => acc + (parseFloat(c.impl_cost as any) || 0), 0);
   const roi = totalImplCost > 0 ? ((totalBenefit / totalImplCost) * 100).toFixed(0) : '0';
   const avgPayback = goCases.length > 0 ? (goCases.reduce((acc, c) => acc + (parseFloat(c.payback_months as any) || 0), 0) / goCases.length).toFixed(1) : '0';
 
-  const killRate = decidedCases.length > 0 ? ((cases.filter(c => c.decision === ProjectDecision.NOGO).length / decidedCases.length) * 100).toFixed(0) : '0';
+  const killRate = decidedCases.length > 0 ? ((cases.filter(c => c.status === ProjectStatus.REJECTED || c.decision === ProjectDecision.NOGO || c.decision === AIDecision.REJECTED).length / decidedCases.length) * 100).toFixed(0) : '0';
 
   const getAvgDays = (filteredCases: UnifiedCase[]) => {
     if (filteredCases.length === 0) return 0;

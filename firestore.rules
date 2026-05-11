@@ -17,8 +17,13 @@ service cloud.firestore {
     }
 
     match /zhdun_submissions/{caseId} {
-      // Open access for all signed-in users temporarily to fix connectivity
-      allow read, write: if isSignedIn();
+      allow read: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && 
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.requestor_department is string &&
+        request.resource.data.project_title is string;
+      allow update: if isSignedIn() && (isAdmin() || (resource.data.userId == request.auth.uid && request.resource.data.status == resource.data.status));
+      allow delete: if isAdmin();
     }
 
     match /test/connection {

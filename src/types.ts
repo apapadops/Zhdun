@@ -15,6 +15,9 @@ export enum ProjectStatus {
   PENDING = "pending",
   REVIEW = "review",
   DECIDED = "decided",
+  ACCEPTED = "accepted",
+  REJECTED = "rejected",
+  NEEDS_INFO = "needs_info",
 }
 
 export enum ProjectDecision {
@@ -117,6 +120,10 @@ export interface UnifiedCase {
   approved_date?: string;
   next_review_date?: string;
   registry_status?: 'pending' | 'active' | 'rejected';
+  
+  // Decision Details
+  rejection_reason?: string;
+  needs_info_details?: string;
 }
 
 export interface Message {

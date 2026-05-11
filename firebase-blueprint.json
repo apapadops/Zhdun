@@ -8,13 +8,27 @@
         "id": { "type": "string" },
         "userId": { "type": "string" },
         "project_title": { "type": "string" },
-        "case_type": { "type": "string" },
-        "status": { "type": "string" },
-        "tier": { "type": "string" },
+        "case_type": { "type": "string", "enum": ["project", "ai", "hybrid"] },
+        "status": { "type": "string", "enum": ["pending", "review", "decided"] },
+        "tier": { "type": "string", "enum": ["T1", "T2", "T3"] },
+        "requestor_name": { "type": "string" },
+        "requestor_department": { "type": "string" },
         "requestor_email": { "type": "string" },
-        "created_at": { "type": "string", "format": "date-time" }
+        "created_at": { "type": "string", "format": "date-time" },
+        "problem_statement": { "type": "string" },
+        "expected_outcome": { "type": "string" },
+        "markets_affected": { "type": "string" },
+        "strategic_driver": { "type": "string" },
+        "deadline": { "type": "string" },
+        "initiative_description": { "type": "string" },
+        "expected_benefits": { "type": "string" },
+        "ai_tool": { "type": "string" },
+        "intended_purpose": { "type": "string" },
+        "users_scope": { "type": "string" },
+        "data_types": { "type": "string" },
+        "system_integrations": { "type": "string" }
       },
-      "required": ["id", "userId", "project_title", "status"]
+      "required": ["id", "userId", "project_title", "status", "case_type", "requestor_department"]
     }
   },
   "firestore": {

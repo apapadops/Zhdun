@@ -11,7 +11,8 @@ import {
   onSnapshot,
   Timestamp,
   serverTimestamp,
-  orderBy
+  orderBy,
+  or
 } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { UnifiedCase, ProjectStatus } from '../types';
@@ -115,13 +116,16 @@ export const unifiedService = {
     }
 
     const q = query(
-      collection(db, COLLECTION_PATH), 
-      orderBy('created_at', 'desc')
+      collection(db, COLLECTION_PATH)
     );
 
     return onSnapshot(q, (snapshot) => {
       const cases = snapshot.docs.map(doc => doc.data() as UnifiedCase);
-      callback(cases);
+      // Client-side sort as fallback
+      const sorted = [...cases].sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      callback(sorted);
     }, (error) => {
       handleFirestoreError(error, OperationType.LIST, COLLECTION_PATH);
     });
@@ -134,15 +138,22 @@ export const unifiedService = {
       return () => {};
     }
 
+    const constraints = [where('userId', '==', auth.currentUser.uid)];
+    if (auth.currentUser.email) {
+      constraints.push(where('requestor_email', '==', auth.currentUser.email));
+    }
+
     const q = query(
       collection(db, COLLECTION_PATH), 
-      where('userId', '==', auth.currentUser.uid),
-      orderBy('created_at', 'desc')
+      or(...constraints)
     );
 
     return onSnapshot(q, (snapshot) => {
       const cases = snapshot.docs.map(doc => doc.data() as UnifiedCase);
-      callback(cases);
+      const sorted = [...cases].sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      callback(sorted);
     }, (error) => {
       handleFirestoreError(error, OperationType.LIST, COLLECTION_PATH);
     });
