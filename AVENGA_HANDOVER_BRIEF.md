@@ -374,7 +374,7 @@ When Avenga cannot resolve a query independently, escalate to the **Betano AI & 
 
 ---
 
-## 9. What Makes a Strong vs. Weak Submission
+## 10. What Makes a Strong vs. Weak Submission
 
 This context helps Avenga guide requestors who need help improving their submissions or understanding why the team requested more information.
 
