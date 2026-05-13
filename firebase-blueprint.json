@@ -26,7 +26,9 @@
         "intended_purpose": { "type": "string" },
         "users_scope": { "type": "string" },
         "data_types": { "type": "string" },
-        "system_integrations": { "type": "string" }
+        "system_integrations": { "type": "string" },
+        "support_material_link": { "type": "string" },
+        "ai_intent": { "type": "string", "enum": ["Use & learn an AI tool", "Build or automate something"] }
       },
       "required": ["id", "userId", "project_title", "status", "case_type", "requestor_department"]
     }

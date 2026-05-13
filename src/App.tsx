@@ -223,7 +223,7 @@ const EditableMetric = ({ label, value, note, onSave, isCurrency }: { label: str
       <p className="text-lg font-mono font-medium text-base group-hover:text-indigo transition-colors">
         {isCurrency && value ? formatCurrency(value) : (value || '—')}
       </p>
-      {note && <p className="text-[8px] text-grey-400 mt-1 italic">{note}</p>}
+      {note && <p className="text-[8px] text-grey-400 mt-1">{note}</p>}
     </div>
   );
 };
@@ -274,8 +274,10 @@ function MySubmissionsModule({ cases, onSelectCase }: { cases: UnifiedCase[], on
         <div className="w-16 h-16 bg-grey-50 rounded-pill flex items-center justify-center text-grey-200 mb-6 shadow-tiny">
           <ClipboardList size={32} />
         </div>
-        <h3 className="text-xl font-medium mb-2 italic text-navy">No Submissions Yet</h3>
-        <p className="text-grey-400 font-medium max-w-sm">Use the Intake Wizard to start your first transformation or AI initiative.</p>
+        <div>
+          <h3 className="text-xl font-medium mb-2 text-navy">No Submissions Yet</h3>
+          <p className="text-grey-400 font-medium max-w-sm">Use the Intake Wizard to start your first transformation or AI initiative.</p>
+        </div>
       </div>
     );
   }
@@ -284,7 +286,7 @@ function MySubmissionsModule({ cases, onSelectCase }: { cases: UnifiedCase[], on
     <div className="space-y-8 h-full flex flex-col font-sans overflow-hidden">
       <div className="flex items-center justify-between shrink-0">
         <div>
-           <h2 className="text-3xl font-medium tracking-tight italic text-navy">My Initiatives</h2>
+           <h2 className="text-3xl font-medium tracking-tight text-navy">My Initiatives</h2>
            <p className="text-grey-400 font-medium mt-1">Tracking {cases.length} active nodes</p>
         </div>
         <div className="flex items-center gap-3">
@@ -319,8 +321,8 @@ function MySubmissionsModule({ cases, onSelectCase }: { cases: UnifiedCase[], on
                 </div>
              </div>
 
-             <h4 className="font-medium text-lg text-navy mb-3 group-hover:text-indigo transition-standard italic line-clamp-1">{c.project_title}</h4>
-             <p className="text-xs text-grey-400 font-medium mb-6 line-clamp-3 italic leading-relaxed h-[4.5em]">
+             <h4 className="font-medium text-lg text-navy mb-3 group-hover:text-indigo transition-standard line-clamp-1">{c.project_title}</h4>
+             <p className="text-xs text-grey-400 font-medium mb-6 line-clamp-3 leading-relaxed h-[4.5em]">
                "{c.case_type === CaseType.AI ? (c.initiative_description || c.problem_statement) : c.problem_statement}"
              </p>
 
@@ -334,15 +336,15 @@ function MySubmissionsModule({ cases, onSelectCase }: { cases: UnifiedCase[], on
                    </p>
                 </div>
                 <div>
-                   <p className="text-[8px] font-medium text-grey-300 tracking-wider mb-1">Benefit Est.</p>
-                   <p className="text-[11px] font-medium text-navy italic tabular-nums">
-                     {c.case_type === CaseType.AI ? 'N/A' : formatCurrency(c.annual_fte_cost || 0)}
-                   </p>
+                  <p className="text-[8px] font-medium text-grey-300 tracking-wider mb-1">Benefit Est.</p>
+                  <p className="text-[11px] font-medium text-navy tabular-nums">
+                    {c.case_type === CaseType.AI ? 'N/A' : formatCurrency(c.annual_fte_cost || 0)}
+                  </p>
                 </div>
                 <div className="col-span-2 pt-2">
                    <p className="text-[8px] font-medium text-grey-300 tracking-wider mb-2">Strategy</p>
                    {c.strategic_driver && <BigBetBadge driver={c.strategic_driver} />}
-                   {!c.strategic_driver && <p className="text-[10px] text-grey-300 italic">No Strategic Driver</p>}
+                   {!c.strategic_driver && <p className="text-[10px] text-grey-300">No Strategic Driver</p>}
                 </div>
              </div>
              
@@ -417,7 +419,7 @@ export default function App() {
         >
           <img src="/logo.png" alt="Zhdun" className="w-full h-full object-contain drop-shadow-lg" />
         </motion.div>
-        <h2 className="text-4xl font-medium text-navy tracking-tight italic mb-2">ZH<span className="text-indigo">DUN</span></h2>
+        <h2 className="text-4xl font-medium text-navy tracking-tight mb-2">ZH<span className="text-indigo">DUN</span></h2>
         <p className="text-grey-400 text-[10px] font-medium tracking-[0.4em] tabular-nums">Establishing Connection Node</p>
       </div>
     );
@@ -451,7 +453,7 @@ export default function App() {
             <img src="/logo.png" alt="Zhdun" className="w-full h-full object-contain" />
           </motion.div>
           
-          <h1 className="text-5xl font-medium text-navy tracking-tighter italic mb-3">
+          <h1 className="text-5xl font-medium text-navy tracking-tighter mb-3">
             ZH<span className="text-indigo">DUN</span>
           </h1>
           <p className="text-grey-400 text-[9px] font-medium tracking-[0.4em] mb-10 opacity-70">Central Operations Hub</p>
@@ -473,7 +475,7 @@ export default function App() {
           </div>
           
           <p className="mt-10 text-[8px] text-grey-300 font-medium tracking-[0.3em] tabular-nums">
-            Enterprise Security Enforced v5.0
+            Enterprise Security Enforced
           </p>
         </motion.div>
         
@@ -561,11 +563,11 @@ export default function App() {
                 <img src="/logo.png" alt="Zhdun" className="w-full h-full object-contain drop-shadow-xl" />
               </motion.div>
               <div className="text-center">
-                <h1 className="text-7xl font-medium text-navy tracking-tighter italic leading-none mb-4">ZH<span className="text-indigo">DUN</span></h1>
+                <h1 className="text-7xl font-medium text-navy tracking-tighter leading-none mb-4 uppercase">ZH<span className="text-indigo">DUN</span></h1>
                 <p className="text-grey-400 font-medium text-[9px] tracking-[0.5em] opacity-80">Operational Intelligence Platform</p>
               </div>
             </div>
-            <p className="text-grey-500 font-medium text-lg max-w-2xl mx-auto leading-relaxed italic">
+            <p className="text-grey-500 font-medium text-lg max-w-2xl mx-auto leading-relaxed">
               Precision orchestration for Kaizen's transformation roadmap. Seamless governance and data-driven oversight.
             </p>
           </motion.div>
@@ -617,14 +619,13 @@ export default function App() {
     <div className="h-screen bg-cream flex flex-col font-sans overflow-hidden">
       {/* Header */}
       <header className="h-20 bg-white/80 backdrop-blur-lg border-b border-grey-100 px-6 md:px-10 flex items-center justify-between shrink-0 sticky top-0 z-40">
-        <div className="flex items-center gap-4 md:gap-6">
+        <div className="flex items-center gap-2 md:gap-3">
           <div className="w-12 h-12 flex items-center justify-center overflow-hidden">
             <img src="/logo.png" alt="Z" className="w-full h-full object-contain" />
           </div>
           <div className="hidden sm:block">
-            <h1 className="text-lg font-medium italic tracking-tight text-navy flex items-center gap-2">
+            <h1 className="text-lg font-medium tracking-tighter text-navy flex items-center gap-2">
               ZH<span className="text-indigo">DUN</span>
-              <span className="text-[10px] font-medium tracking-widest text-grey-300 not-italic tabular-nums">v5.0</span>
             </h1>
           </div>
         </div>
@@ -717,7 +718,7 @@ export default function App() {
               <div className="h-full flex items-center justify-center">
                 <div className="bg-white p-10 rounded-card border border-grey-100 shadow-lg text-center max-w-sm">
                   <ShieldCheck size={40} className="text-danger mx-auto mb-6" />
-              <h3 className="text-lg font-medium text-navy italic mb-2">Access Restricted</h3>
+              <h3 className="text-lg font-medium text-navy mb-2">Access Restricted</h3>
                   <p className="text-grey-500 text-xs font-medium leading-relaxed">
                     Only authorized Transformation Leads can access the Assessment Pipeline. Please contact your administrator.
                   </p>
@@ -746,6 +747,7 @@ export default function App() {
         item={viewingCase} 
         onUpdate={handleUpdateCase}
         isAdmin={isAdmin}
+        isAnalysisView={activeTab === 'pipeline'}
       />
     </div>
   );
@@ -753,12 +755,13 @@ export default function App() {
 
 // --- CASE DETAILS MODAL ---
 
-function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: { 
+function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin, isAnalysisView }: { 
   isOpen: boolean, 
   onClose: () => void, 
   item: UnifiedCase | null,
   onUpdate: (id: string, updates: Partial<UnifiedCase>) => Promise<void>,
-  isAdmin: boolean
+  isAdmin: boolean,
+  isAnalysisView: boolean
 }) {
   if (!item) return null;
 
@@ -832,7 +835,7 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
         <div className="p-2 bg-indigo-lt text-indigo rounded shadow-tiny">
           <Icon size={18} />
         </div>
-        <h4 className="text-sm font-medium text-navy tracking-widest italic">{title}</h4>
+        <h4 className="text-sm font-medium text-navy tracking-widest">{title}</h4>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {children}
@@ -845,7 +848,7 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
     return (
       <div className={`p-4 bg-grey-50 rounded-inner border border-grey-100 group hover:bg-white transition-all duration-300 ${fullWidth ? 'md:col-span-2' : ''}`}>
         <p className="text-[10px] font-medium text-grey-400 tracking-[0.2em] mb-1 group-hover:text-indigo transition-colors">{label}</p>
-        <p className="text-sm font-medium text-navy italic leading-relaxed whitespace-pre-wrap">
+        <p className="text-sm font-medium text-navy leading-relaxed whitespace-pre-wrap">
           {typeof value === 'boolean' ? (value ? 'YES' : 'NO') : value}
         </p>
       </div>
@@ -881,7 +884,7 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
                     {item.decision ? item.decision.replace(/_/g, ' ') : item.status}
                   </div>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-navy tracking-tighter italic leading-tight uppercase">
+                <h2 className="text-3xl md:text-4xl font-bold text-navy tracking-tighter leading-tight uppercase">
                   {item.project_title}
                 </h2>
               </div>
@@ -902,6 +905,7 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
                     <DetailItem label="Problem Statement" value={item.problem_statement} fullWidth />
                     <DetailItem label="Expected Outcome" value={item.expected_outcome} fullWidth />
                     {item.initiative_description && <DetailItem label="Initiative Description" value={item.initiative_description} fullWidth />}
+                    {item.support_material_link && <DetailItem label="Support Material" value={item.support_material_link} fullWidth />}
                     {item.additional_context && <DetailItem label="Additional Context" value={item.additional_context} fullWidth />}
                   </DetailSection>
 
@@ -938,8 +942,7 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
                       <DetailItem label="Duration" value={item.duration} />
                       <DetailItem label="Monthly Volume" value={item.volume_per_month} />
                       <DetailItem label="Hours per Case" value={item.hours_per_case} />
-                      <DetailItem label="Team Profile" value={item.team_profile} />
-                      <DetailItem label="Soft Benefits" value={item.soft_benefits} fullWidth />
+                      <DetailItem label="Seniority" value={item.team_profile} />
                     </DetailSection>
                   )}
                   
@@ -951,8 +954,8 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
                 </div>
 
                 <div className="space-y-6">
-                  {/* Decision Controls (Admin Only or Decided View) */}
-                  {isAdmin && (
+                  {/* Decision Hub (Admin Only and correct context) */}
+                  {isAdmin && isAnalysisView && (
                     <div className="bg-navy p-8 rounded-card text-white relative overflow-hidden group shadow-xl">
                       <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-pill -mr-16 -mt-16" />
                       <p className="text-[10px] font-medium text-white/30 mb-6 uppercase tracking-widest">Decision Hub</p>
@@ -991,7 +994,7 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
 
                         <div className="flex justify-between items-center bg-white/5 p-3 rounded border border-white/10">
                           <span className="text-[9px] font-medium text-white/50 tracking-widest">Magnitude</span>
-                          <span className="text-xl font-medium italic tabular-nums">{item.tshirt}</span>
+                          <span className="text-xl font-medium tabular-nums">{item.tshirt}</span>
                         </div>
                         
                         <div className="flex justify-between items-center bg-white/5 p-3 rounded border border-white/10">
@@ -1002,14 +1005,14 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
                         {(item.decision || item.status === ProjectStatus.ACCEPTED || item.status === ProjectStatus.REJECTED) && (
                           <div className="flex justify-between items-center bg-white/10 p-4 rounded-inner border border-white/20 shadow-inner">
                             <span className="text-[9px] font-medium text-white/50 tracking-widest uppercase">Verdict</span>
-                            <span className={`text-lg font-bold italic uppercase ${getStatusColor(item.status, item.decision) === 'success' ? 'text-success' : 'text-danger'}`}>
+                            <span className={`text-lg font-bold uppercase ${getStatusColor(item.status, item.decision) === 'success' ? 'text-success' : 'text-danger'}`}>
                               {item.status.toUpperCase()}
                             </span>
                           </div>
                         )}
                       </div>
                       {item.decided_at && (
-                        <p className="mt-6 text-[8px] font-medium text-white/20 tracking-widest text-center italic">Node finalized on {new Date(item.decided_at).toLocaleDateString()}</p>
+                        <p className="mt-6 text-[8px] font-medium text-white/20 tracking-widest text-center">Node finalized on {new Date(item.decided_at).toLocaleDateString()}</p>
                       )}
                     </div>
                   )}
@@ -1017,20 +1020,20 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
                   {/* Reasons Display (Always show if relevant) */}
                   {(item.rejection_reason || item.needs_info_details) && (
                     <div className="bg-white border border-grey-100 p-6 rounded-card shadow-sm border-l-4 border-l-danger">
-                       <h4 className="text-[10px] font-bold text-navy mb-4 italic flex items-center gap-2 uppercase tracking-widest">
+                       <h4 className="text-[10px] font-bold text-navy mb-4 flex items-center gap-2 uppercase tracking-widest">
                          <AlertTriangle size={14} className="text-danger" /> Decision Notes
                        </h4>
-                       <p className="text-sm font-medium text-navy italic leading-relaxed">
+                       <p className="text-sm font-medium text-navy leading-relaxed">
                          {item.status === ProjectStatus.REJECTED ? item.rejection_reason : item.needs_info_details}
                        </p>
                     </div>
                   )}
 
                   {/* Enhanced Scoring Layer (Admin Only) */}
-                  {isAdmin && (
+                  {isAdmin && isAnalysisView && (
                     <div className="bg-white border border-grey-100 p-8 rounded-card shadow-sm relative overflow-hidden">
                       <div className="absolute top-0 right-0 w-24 h-24 bg-indigo/5 rounded-pill -mr-12 -mt-12" />
-                      <h4 className="text-[10px] font-bold text-navy mb-8 italic flex items-center gap-2 uppercase tracking-widest">
+                      <h4 className="text-[10px] font-bold text-navy mb-8 flex items-center gap-2 uppercase tracking-widest">
                          <Activity size={14} className="text-indigo" /> Transformation Score
                       </h4>
                       
@@ -1047,7 +1050,7 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
                         <div className="flex items-center justify-between mb-4">
                           <span className="text-[9px] font-bold text-grey-400 tracking-widest uppercase">Composite Index</span>
                           <div className="flex items-center gap-3">
-                             <span className="text-2xl font-bold italic text-navy tabular-nums">{(getOverallScore(item) || 0).toFixed(1)}</span>
+                             <span className="text-2xl font-bold text-navy tabular-nums">{(getOverallScore(item) || 0).toFixed(1)}</span>
                              <ScoringSpheres score={getOverallScore(item) || 0} />
                           </div>
                         </div>
@@ -1065,32 +1068,31 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
                   <div className="bg-grey-50 p-6 rounded-card border border-grey-100 overflow-hidden">
                     <div className="flex items-center gap-2 mb-4">
                        <Clock size={14} className="text-indigo" />
-                       <span className="text-[10px] font-medium text-navy italic">Timeline Details</span>
+                       <span className="text-[10px] font-medium text-navy">Timeline Details</span>
                     </div>
                     <div className="space-y-3">
                        <div>
                           <p className="text-[8px] font-medium text-grey-300">Entry Date</p>
-                          <p className="text-[10px] font-medium text-navy italic">{new Date(item.created_at).toLocaleString()}</p>
+                          <p className="text-[10px] font-medium text-navy">{new Date(item.created_at).toLocaleString()}</p>
                        </div>
                        {item.deadline && (
                          <div>
                             <p className="text-[8px] font-medium text-grey-300">Intended Deadline</p>
-                            <p className="text-[10px] font-medium text-navy italic">{item.deadline}</p>
+                            <p className="text-[10px] font-medium text-navy">{item.deadline}</p>
                          </div>
                        )}
                        {item.next_review_date && (
                          <div className="pt-2">
                             <p className="text-[8px] font-medium text-indigo">Next Scheduled Review</p>
-                            <p className="text-[10px] font-medium text-indigo italic tabular-nums">{item.next_review_date}</p>
+                            <p className="text-[10px] font-medium text-indigo tabular-nums">{item.next_review_date}</p>
                          </div>
                        )}
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Modal Footer */}
+              {/* Modal Footer */}
             <div className="p-6 bg-grey-50 border-t border-grey-100 flex justify-end">
               <button 
                 onClick={onClose}
@@ -1098,6 +1100,7 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
               >
                 Close Viewport
               </button>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -1108,14 +1111,53 @@ function CaseDetailsModal({ isOpen, onClose, item, onUpdate, isAdmin }: {
 
 // --- TAB 1: INTAKE WIZARD ---
 
+const ChatDisclaimer = () => (
+  <motion.div 
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-white/80 backdrop-blur-sm p-6 rounded-card border border-indigo/20 shadow-sm-kaizen mb-8"
+  >
+    <div className="space-y-6">
+      <div className="flex gap-4">
+        <div className="w-10 h-10 bg-gold-lt rounded-inner flex items-center justify-center shrink-0 border border-gold/10 shadow-tiny">
+          <Rocket className="text-gold-dk" size={20} />
+        </div>
+        <div>
+          <h4 className="font-bold text-sm text-navy mb-1">
+            🚀 AI Initiatives: Build Something New
+          </h4>
+          <p className="text-[11px] text-grey-500 leading-relaxed font-medium">
+            Choose this if your goal is to develop a new application using our internal AI tools. If you are starting a fresh project to automate a task or launch a new AI-driven service, this is the right spot.
+          </p>
+        </div>
+      </div>
+      
+      <div className="flex gap-4">
+        <div className="w-10 h-10 bg-indigo-lt rounded-inner flex items-center justify-center shrink-0 border border-indigo/10 shadow-tiny">
+          <Zap className="text-indigo" size={20} />
+        </div>
+        <div>
+          <h4 className="font-bold text-sm text-navy mb-1">
+            ⚙️ Optimization: Improve the Current
+          </h4>
+          <p className="text-[11px] text-grey-500 leading-relaxed font-medium">
+            Choose this for refining or streamlining existing workflows. Whether it’s a business process or a technical system, if your goal is to make things run more smoothly or efficiently, select this category.
+          </p>
+        </div>
+      </div>
+    </div>
+  </motion.div>
+);
+
 function IntakeWizard({ user, onCaseSubmit }: { user: any, onCaseSubmit: (c: UnifiedCase) => void }) {
   const [history, setHistory] = useState<Message[]>([
-    { role: 'assistant', content: `Hello ${user?.displayName?.split(' ')[0] || ''}! I'm ZHDUN, your Transformation Catalyst. Let's start with the basics. What should we call this initiative?` }
+    { role: 'assistant', content: `Hello ${user?.displayName?.split(' ')[0] || ''}! I'm ZHDUN, your Transformation Catalyst. To get started, please select the type of initiative you'd like to intake.` }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [completedCase, setCompletedCase] = useState<Partial<UnifiedCase> | null>(null);
   const [submittedCase, setSubmittedCase] = useState<UnifiedCase | null>(null);
+  const [showCelebration, setShowCelebration] = useState(false);
   const [caseSummary, setCaseSummary] = useState<string>('');
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [candidateData, setCandidateData] = useState<Partial<UnifiedCase>>({});
@@ -1136,78 +1178,96 @@ Your job: conduct a warm, precise conversational interview to intake a new initi
 Speak naturally. Never use bullet lists. One question at a time. Max 2-3 short sentences per message.
 
 ─── CORE BEHAVIOR (CRITICAL) ───
-- DATA INTEGRITY: You MUST capture accurate and complete information. If a user provides vague, incorrect, or incomplete data, or refuses to provide information (e.g., "I won't give you this"), you MUST insist politely and explain why that data is critical for the initiative's success in the pipeline.
-- GUIDANCE: If a user isn't sure what to write or how to define their initiative, you MUST proactively offer help, examples, or suggestions based on common Kaizen transformation patterns (e.g., automation of manual reporting, LLM-based customer support, process streamlining).
-- PERSISTENCE: Do not allow the user to skip essential fields. If they try to bypass a question, reiterate its importance and help them formulate an answer.
+- BRANCHING LOGIC: You MUST branch the interview immediately based on the user's first choice: "AI initiative" vs "Optimization Project".
+- STICK TO THE PATH: Once the classification is determined, follow ONLY the corresponding checklist. Never mix questions from both paths.
+- DATA INTEGRITY: You MUST capture accurate and complete information. If a user provides vague, incorrect, or incomplete data, or refuses to provide information, you MUST insist politely and explain why that data is critical.
+- GUIDANCE: If a user isn't sure what to write, offer help or examples based on common Kaizen patterns (e.g., automation of manual reporting, LLM-based customer support, process streamlining).
+- SAVING CALCULATION: For "Optimization Project", you are STRICTLY FORBIDDEN from calculating or displaying savings until you have THREE pieces of data: volume_per_month, hours_per_case, AND team_profile. Once (and only once) all three are captured, output the signal CALCULATION:{"annual_hours":X, "fte_saving":Y, "annual_savings":Z} followed by a natural language message asking for validation.
+- VALIDATION DELAY: You are STRICTLY FORBIDDEN from sending CASE_COMPLETE in the same message as the saving calculation. Wait for confirmation first.
 
 ─── CLASSIFICATION (SILENT) ───
-On the first message, determine intake type based on the user's initial selection or description:
-- PROJECT: operational / process / automation initiative (no AI/LLM)
-- AI: pure AI/LLM/GenAI initiative  
-- HYBRID: process improvement that includes an AI component
+On the first message, set the intake path:
+- PROJECT: If "Optimization Project" is selected.
+- AI: If "AI initiative" is selected.
+- If "Not Sure" is selected, you MUST explain the difference and ask for a choice:
+    - AI Initiative: Internal AI-powered applications/tools/models.
+    - Optimization Project: Process improvement/automation owned by the Transformation team.
 
-If the user selects "Not Sure" for classification, you MUST explain:
-- AI Initiative: Building or deploying an internal AI-powered application, tool, or model.
-- Optimization Project: A process improvement initiative that the Transformation/Optimization team will own and deliver.
-
-Never mention PROJECT/AI/HYBRID or T1/T2/T3 to the user. These are internal only.
+Never mention T1/T2/T3 to the user.
 
 ─── TIER SCORING (SILENT, ALL CASES) ───
-Maintain a running tier_score (0–20) as you learn about the initiative.
-Add points for ALL initiatives (AI or PROJECT):
-+4 if external/3rd-party tech/LLM (not internal model)
+Maintain a running tier_score (0–20).
+Add points:
++4 if external/3rd-party tech/LLM
 +4 if cross-departmental impact
 +3 if Enterprise Use (Tier 3)
 +2 if Department Use (Tier 2)
 +1 if Personal Use (Tier 1)
-+3 if >€100k projected investment or savings
-+3 if any PII data involved
-+3 if financial or regulated data involved
++3 if >€100k projected investment/savings
++3 if PII data involved
++3 if financial/regulated data involved
 +2 if integrated with production systems
-+2 if used in regulated process (AML, KYC, responsible gambling)
++2 if used in regulated process (AML, KYC, responsibility)
 +1 if >100 users in scope
 
-Tier mapping (Captured as "tier" field):
-0-7   = T3 (Quick Win: Small impact, simple automation, immediate impact)
-8-14  = T2 (Tactical: Medium impact, department-specific, 6-12 month ROI)
-15-20 = T1 (Strategic: High impact, cross-departmental, touches Core Product)
+Tier mapping: 0-7 = T3, 8-14 = T2, 15-20 = T1.
+CRITICAL: If tier_score >= 8, capture expected_benefits before closing.
 
-CRITICAL: If tier_score >= 8 (T2 or T1), you MUST capture expected_benefits before closing.
-Never tell the user their tier or score.
+─── FIELD CHECKLIST (STRICT BRANCHING) ───
 
-─── FIELD CHECKLIST (CHRONOLOGICAL PREFERENCE) ───
-1. project_title (or initiative_title)
-2. requestor_department (MUST ASK IMMEDIATELY AFTER TITLE)
-...proceed with others...
+IF PATH IS "PROJECT" (Optimization Project):
+1. project_title
+2. requestor_department
+3. markets_affected (CHOICES)
+4. problem_statement
+5. expected_outcome (Insist for detail)
+6. volume_per_month (numeric)
+7. hours_per_case (numeric)
+8. team_profile (CHOICES)
+9. teams_involved
+10. strategic_driver (CHOICES)
+11. deadline
+12. support_material_link (ask at very end)
 
-For PROJECT intake, capture ALL of:
-project_title, requestor_department, markets_affected, problem_statement, 
-expected_outcome (CRITICAL: Insist for detail), volume_per_month (numeric), 
-hours_per_case (numeric), team_profile, duration, teams_involved, soft_benefits, 
-strategic_driver, deadline
+IF PATH IS "AI" (AI initiative):
+1. ai_intent (CHOICES: "What are you looking to do?")
+2. initiative_title (maps to project_title)
+3. requestor_department
+4. initiative_description
+5. expected_outcome (Insist for detail)
+6. intended_purpose (CHOICES)
+7. users_scope (CHOICES)
+8. markets_affected (CHOICES)
+9. data_types (CHOICES)
+10. ai_tool (CHOICES)
+11. system_integrations
+12. support_material_link (ask at end)
+13. additional_context (ask at end: "Anything else to add?")
+14. expected_benefits (ONLY if tier_score >= 8, CHOICES)
 
-For AI intake, capture ALL of:
-initiative_title (maps to project_title), requestor_department, initiative_description,
-expected_outcome (CRITICAL: Insist for detail), intended_purpose, users_scope, 
-markets_affected, data_types, ai_tool, system_integrations, 
-additional_context (ask at end: "Anything else to add?"),
-expected_benefits (ONLY if tier_score >= 15)
+─── SUPPORT MATERIAL (CRITICAL) ───
+Before closing, always ask: "Is there any support material available that supports the case? Please share the link in the chat." (field: support_material_link)
 
 ─── OTHER SELECTION ───
-If the user selects "Other" for intended_purpose or expected_benefits, you MUST politely ask them to describe the specific detail or benefit in their own words. Do NOT proceed until they provide this information.
+If "Other" is selected for purpose/benefits, ask for a description.
 
-─── COMPUTED FIELDS (DO SILENTLY, INCLUDE IN CASE_COMPLETE) ───
+─── STRATEGIC DRIVER (PROJECT ONLY) ───
+Focus only on alignment when asking.
+
+─── COMPUTED FIELDS (PROJECT ONLY) ───
 annual_hours = volume_per_month × hours_per_case × 12
-annual_fte_cost = annual_hours × hourly_rate (use salary table below × 1.35 burden)
+annual_fte_cost = annual_hours × hourly_rate (based on seniority table below)
 fte_saving_est = annual_hours / 1720
 
-Salary table (annual base):
-- GR/CY/MT: Jr 20k, Mid 30k, Sr 45k, Mgr 60k
-- EE (RO/BG/CZ): Jr 15k, Mid 22k, Sr 35k, Mgr 50k
-- WE (UK/DE/DK): Jr 28k, Mid 42k, Sr 60k, Mgr 80k
-- LATAM (BR/MX/AR): Jr 12k, Mid 18k, Sr 28k, Mgr 40k
+Seniority (Hourly Rate) table:
+- Junior: €25
+- Middle: €40
+- Senior: €65
+- Lead / Manager: €90
+- Mixed: €55
 
-T-shirt size: S = <500 annual_hours, M = 500-2000, L = 2000-5000, XL = >5000
+Mapping for CALCULATION signal:
+"annual_savings" in CALCULATION signal refers to the computed annual_fte_cost.
 
 Strategic driver mapping:
 "Hey Betano" = AI Transformation
@@ -1216,42 +1276,23 @@ Strategic driver mapping:
 "Core Betano" = Operational Excellence
 
 ─── CHOICES SIGNAL ───
-When a field has predefined options, ALWAYS include a CHOICES signal after your question.
-The user will see clickable buttons — do NOT list the options in your text.
-
 Format: CHOICES:{"type":"single"|"multi","field":"fieldname","options":["Option1","Option2"...]}
 
-Use CHOICES for:
-- initial_classification → CHOICES:{"type":"single","field":"initial_classification","options":["AI initiative","Optimization Project","Not sure"]}
-- markets_affected → CHOICES:{"type":"multi","field":"markets_affected","options":["Malta","Bulgaria","Romania","Czech Republic","United Kingdom","Germany","Denmark","Brazil","Mexico","Argentina","HQ","All Markets"]}
-- strategic_driver → CHOICES:{"type":"single","field":"strategic_driver","options":["Hey Betano","Shield Betano","Betano Republic","Core Betano"]}
-- data_types → CHOICES:{"type":"multi","field":"data_types","options":["Personal / PII","Financial Data","Customer Data","No Sensitive Data"]}
-- ai_tool → CHOICES:{"type":"single","field":"ai_tool","options":["Claude (Anthropic)","Gemini","Google AI Studio","Not Sure"]}
-- users_scope → CHOICES:{"type":"single","field":"users_scope","options":["Personal Use","Department Use","Enterprise Use"]}
-- team_profile → CHOICES:{"type":"single","field":"team_profile","options":["Junior-heavy","Mixed Team","Senior-heavy","Management Level"]}
-- expected_benefits → CHOICES:{"type":"multi","field":"expected_benefits","options":["Cost Savings","Efficiency Gain","User Experience","Risk Mitigation","Compliance Accuracy","Other"]}
-- duration → CHOICES:{"type":"single","field":"duration","options":["Under 1 month","1–3 months","3–6 months","6–12 months","Over 12 months"]}
-- intended_purpose → CHOICES:{"type":"multi","field":"intended_purpose","options":["Content Generation","Decision Support","Data Analysis","Process Automation","Customer Service / Chatbot","Risk & Compliance","Other"]}
-
-─── AI GOVERNANCE CONTEXT (TIERED USE) ───
-If the user is unsure about the scope of use, explain the tiers based on these core objectives:
-- Tier 1 - Personal AI Use: Maximize productivity at zero friction. Strictly individual use, no system integration, no customer/sensitive data, no critical business risk.
-- Tier 2 - Departmental Use: Fast business impact with controlled risk. Department/division/market level, limited system integration, internal data only, clear KPI/business case needed.
-- Tier 3 - Enterprise Use: Scalable, secure, compliant AI. Cross-divisional/multi-market, heavy system integration, customer/sensitive/regulated data, high strategic impact.
-
-─── AI TOOL SELECTION LOGIC ───
-If the user indicates they are unsure about which AI tool to choose (e.g., selects "Not Sure"):
-1. Provide a one-time concise explanation of the tools:
-   - Claude (Anthropic): Best for complex reasoning, large contexts, and subtle writing.
-   - Gemini: Ideal for Google integration and native multimodal capabilities.
-   - Google AI Studio: Perfect for rapid prototyping and trying the newest models.
-2. If the user is still unsure after your help, analyze their initiative's needs and recommend the best-fit tool based on their specific case. 
-3. If they remain undecided, tell them it's fine and set the ai_tool to "I don't know" to proceed.
+Option lists:
+- initial_classification: ["AI initiative","Optimization Project","Not sure"]
+- markets_affected: ["Malta","Bulgaria","Romania","Czech Republic","United Kingdom","Germany","Denmark","Brazil","Mexico","Argentina","HQ","All Markets"]
+- strategic_driver: ["Hey Betano","Shield Betano","Betano Republic","Core Betano"]
+- data_types: ["Personal / PII","Financial Data","Customer Data","No Sensitive Data"]
+- ai_tool: ["Claude (Anthropic)","Gemini","Google AI Studio","Not Sure"]
+- users_scope: ["Personal Use","Department Use","Enterprise Use"]
+- team_profile: ["Junior","Middle","Senior","Lead / Manager","Mixed"]
+- expected_benefits: ["Cost Savings","Efficiency Gain","User Experience","Risk Mitigation","Compliance Accuracy","Other"]
+- ai_intent: ["Use & learn an AI tool", "Build or automate something"]
+- intended_purpose: ["Content Generation","Decision Support","Data Analysis","Process Automation","Customer Service / Chatbot","Risk & Compliance","Other"]
 
 ─── SIGNALS ───
-Always append STATE:{<partial fields>} to every message (hidden from user).
-When all fields are captured, append CASE_COMPLETE:{<full JSON>} and say something like:
-"Great — I've captured everything I need. Please review the summary below and submit when ready."
+Always append STATE:{<partial fields>} to every message.
+When done, append CASE_COMPLETE:{<full JSON>} and ask to review.
 
 CASE_COMPLETE JSON for PROJECT:
 {
@@ -1264,9 +1305,7 @@ CASE_COMPLETE JSON for PROJECT:
   "volume_per_month": 0,
   "hours_per_case": 0,
   "team_profile": "",
-  "duration": "",
   "teams_involved": "",
-  "soft_benefits": "",
   "strategic_driver": "",
   "deadline": "",
   "annual_fte_cost": 0,
@@ -1274,13 +1313,15 @@ CASE_COMPLETE JSON for PROJECT:
   "fte_saving_est": 0,
   "tier": "T1|T2|T3",
   "tshirt": "S|M|L|XL",
-  "flags": []
+  "flags": [],
+  "support_material_link": ""
 }
 
 CASE_COMPLETE JSON for AI:
 {
   "project_title": "",
   "case_type": "ai",
+  "ai_intent": "",
   "requestor_department": "",
   "initiative_description": "",
   "expected_outcome": "",
@@ -1289,16 +1330,14 @@ CASE_COMPLETE JSON for AI:
   "markets_affected": "",
   "data_types": "",
   "ai_tool": "",
-  "ai_model_name": "",
-  "ai_is_external_data": false,
-  "ai_data_subjects": "",
   "system_integrations": "",
   "additional_context": "",
   "expected_benefits": "",
   "tier": "T1|T2|T3",
   "tier_score": 0,
   "flags": [],
-  "tshirt": "S"
+  "tshirt": "S",
+  "support_material_link": ""
 }
 `.trim();
 
@@ -1315,6 +1354,32 @@ CASE_COMPLETE JSON for AI:
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [history]);
+
+  const [isResetting, setIsResetting] = useState(false);
+
+  const handleReset = () => {
+    setIsResetting(true);
+    setTimeout(() => setIsResetting(false), 600);
+    setIsTyping(false);
+    setHistory([
+      { role: 'assistant', content: `Hello ${user?.displayName?.split(' ')[0] || ''}! I'm ZHDUN, your Transformation Catalyst. To get started, please select the type of initiative you'd like to intake.` }
+    ]);
+    setCandidateData({});
+    setCompletedCase(null);
+    setSubmittedCase(null);
+    setCaseSummary('');
+    setIsGeneratingSummary(false);
+    setCurrentChoices({
+      type: 'single',
+      field: 'initial_classification',
+      options: ['AI initiative', 'Optimization Project', 'Not sure']
+    });
+    setInput('');
+    
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+  };
 
   const handleSendValue = async (value: string) => {
     if (!value.trim() || isTyping) return;
@@ -1363,11 +1428,28 @@ CASE_COMPLETE JSON for AI:
         setCurrentChoices(null);
       }
 
+      // Extract calculation signal if present
+      let calculationData = undefined;
+      const calcMatch = response.match(/CALCULATION:\s*(\{[\s\S]*?\})/);
+      if (calcMatch) {
+        try {
+          const rawCalc = JSON.parse(calcMatch[1]);
+          calculationData = {
+            annualHours: rawCalc.annual_hours?.toString() || '',
+            fteSaving: rawCalc.fte_saving?.toString() || '',
+            annualSavings: rawCalc.annual_savings?.toString() || ''
+          };
+        } catch (e) {
+          console.error("Calc parse err", e);
+        }
+      }
+
       // Clean the response for display - removing all operational signals and raw JSON blocks
       let cleanResponse = response
         .replace(/CASE_COMPLETE:\s*\{[\s\S]*?\}/g, '')
         .replace(/STATE:\s*\{[\s\S]*?\}/g, '')
         .replace(/CHOICES:\s*\{[\s\S]*?\}/g, '')
+        .replace(/CALCULATION:\s*\{[\s\S]*?\}/g, '')
         .replace(/```json[\s\S]*?```/g, '')
         .replace(/```[\s\S]*?```/g, '')
         // Catch any stray JSON-like blocks at the end or middle
@@ -1379,7 +1461,11 @@ CASE_COMPLETE JSON for AI:
          cleanResponse = "Perfect. I've compiled the initiative node. Please review the orchestration block below.";
       }
 
-      setHistory(prev => [...prev, { role: 'assistant', content: cleanResponse || "Signal received. Proceeding." }]);
+      setHistory(prev => [...prev, { 
+        role: 'assistant', 
+        content: cleanResponse || "Signal received. Proceeding.",
+        calculationData 
+      }]);
     } catch (err) {
       setHistory(prev => [...prev, { role: 'assistant', content: "Connection severed. Node unstable." }]);
     } finally {
@@ -1408,6 +1494,9 @@ CASE_COMPLETE JSON for AI:
       
       const summary = await callGeminiOnce(summaryPrompt);
       setCaseSummary(summary);
+
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 4000);
 
       confetti({
         particleCount: 150,
@@ -1455,6 +1544,7 @@ CASE_COMPLETE JSON for AI:
     { name: 'Core Vision', fields: ['problem_statement', 'expected_outcome'] },
     { name: 'Metric Baseline', fields: ['annual_fte_cost'] },
     { name: 'Strategic Fit', fields: ['strategic_driver'] },
+    { name: 'Attachments', fields: ['support_material_link'] },
     { name: 'Review', fields: ['case_type'] }
   ];
 
@@ -1466,7 +1556,20 @@ CASE_COMPLETE JSON for AI:
     return 'pending';
   };
 
-  const progressPercent = Math.min(100, Math.round((Object.keys(candidateData).length / 12) * 100));
+  const progressPercent = (() => {
+    const isAI = candidateData.case_type === CaseType.AI;
+    const projectFields = ['project_title', 'requestor_department', 'markets_affected', 'problem_statement', 'expected_outcome', 'volume_per_month', 'hours_per_case', 'team_profile', 'teams_involved', 'strategic_driver', 'deadline', 'support_material_link'];
+    const aiFields = ['project_title', 'ai_intent', 'requestor_department', 'initiative_description', 'expected_outcome', 'intended_purpose', 'users_scope', 'markets_affected', 'data_types', 'ai_tool', 'system_integrations', 'support_material_link', 'additional_context'];
+    
+    const targetFields = isAI ? aiFields : projectFields;
+    const answeredCount = targetFields.filter(f => {
+      const val = candidateData[f as keyof UnifiedCase];
+      return val !== undefined && val !== null && val !== '' && val !== 0;
+    }).length;
+    
+    if (answeredCount === 0) return 0;
+    return Math.min(100, Math.max(5, Math.round((answeredCount / targetFields.length) * 100)));
+  })();
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 font-sans h-full overflow-hidden">
@@ -1476,18 +1579,6 @@ CASE_COMPLETE JSON for AI:
           <h3 className="font-bold text-xs uppercase tracking-[0.2em] mb-6 flex items-center gap-2 text-navy">
             <Activity className="text-indigo" size={14} /> Intake Rhythm
           </h3>
-          <div className="space-y-4 mb-8">
-            {PHASES.map((p, i) => {
-              const status = getPhaseStatus(i);
-              return (
-                <div key={i} className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-pill transition-all duration-700 ${status === 'completed' ? 'bg-indigo' : status === 'active' ? 'bg-indigo ring-4 ring-indigo-lt' : 'bg-grey-100'}`} />
-                  <span className={`text-[10px] font-medium tracking-widest ${status === 'pending' ? 'text-grey-300' : 'text-navy italic'}`}>{p.name}</span>
-                </div>
-              );
-            })}
-          </div>
-
           <h4 className="text-[9px] font-medium text-grey-400 mb-4">Captured Nodes</h4>
           <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-hide">
             {Object.entries(candidateData).filter(([_,v]) => v).map(([k,v]) => (
@@ -1496,7 +1587,7 @@ CASE_COMPLETE JSON for AI:
                 <CheckCircle2 size={12} className="text-indigo shrink-0" />
               </div>
             ))}
-            {Object.keys(candidateData).length === 0 && <p className="text-[10px] text-grey-300 italic">Awakening ZHDUN...</p>}
+            {Object.keys(candidateData).length === 0 && <p className="text-[10px] text-grey-300">Awakening ZHDUN...</p>}
           </div>
         </div>
       </div>
@@ -1506,13 +1597,30 @@ CASE_COMPLETE JSON for AI:
         <div className="p-5 border-b border-grey-100 flex flex-col gap-4 bg-white/50 backdrop-blur-md sticky top-0 z-20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-navy text-white rounded-inner flex items-center justify-center font-medium italic shadow-md">Z</div>
+              <div className="w-10 h-10 flex items-center justify-center shadow-md overflow-hidden bg-white rounded-inner ring-1 ring-grey-100 p-1.5">
+                <img src="/logo.png" alt="Z" className="w-full h-full object-contain" />
+              </div>
               <div>
                 <h2 className="font-medium text-sm tracking-tight">Zhdun Interview</h2>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-[9px] font-medium text-indigo tracking-widest tabular-nums">{progressPercent}% Orchestrated</p>
+            <div className="flex items-center gap-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleReset();
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-pill bg-grey-50 text-grey-400 hover:bg-danger/10 hover:text-danger border border-grey-100 transition-standard text-[10px] font-medium tracking-tight shadow-sm cursor-pointer"
+              >
+                <RefreshCw size={12} className={isResetting ? "animate-spin-once" : ""} />
+                <span>Start from the beginning</span>
+              </motion.button>
+              <div className="text-right hidden sm:block">
+                <p className="text-[9px] font-medium text-indigo tracking-widest tabular-nums">{progressPercent}% Orchestrated</p>
+              </div>
             </div>
           </div>
           
@@ -1527,6 +1635,7 @@ CASE_COMPLETE JSON for AI:
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-cream/20">
+          <ChatDisclaimer />
           {history.map((msg, idx) => (
             <motion.div
               key={idx}
@@ -1535,11 +1644,123 @@ CASE_COMPLETE JSON for AI:
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div className={`max-w-[85%] flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className={`w-8 h-8 rounded-pill shrink-0 flex items-center justify-center text-white font-medium text-[10px] shadow-sm ${msg.role === 'user' ? 'bg-navy' : 'bg-indigo'}`}>
-                  {msg.role === 'user' ? 'U' : 'Z'}
+                <div className={`w-8 h-8 rounded-pill shrink-0 flex items-center justify-center text-white font-medium text-[10px] shadow-sm ${msg.role === 'user' ? 'bg-navy' : ''}`}>
+                  {msg.role === 'user' ? 'U' : <img src="/logo.png" alt="Z" className="w-6 h-6 object-contain" />}
                 </div>
                 <div className={`p-4 rounded-card text-sm leading-relaxed shadow-sm ${msg.role === 'user' ? 'bg-navy text-white rounded-tr-none' : 'bg-white text-navy border border-grey-100 rounded-tl-none font-medium'}`}>
-                  {msg.content}
+                  {msg.calculationData ? (
+                    <div className="space-y-5">
+                      <p className="pb-2 border-b border-grey-100 font-medium text-navy/80">{msg.content}</p>
+                      
+                      {/* Polished Calculation Card */}
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="relative group overflow-hidden"
+                      >
+                        <div className="absolute -inset-1 bg-gradient-to-r from-indigo via-indigo-lt to-success rounded-[20px] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                        <div className="relative bg-white p-6 rounded-card border border-indigo/10 shadow-lg-kaizen space-y-4">
+                          <div className="flex justify-between items-center pb-3 border-b border-grey-50">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 bg-indigo-lt rounded-inner flex items-center justify-center text-indigo">
+                                <Activity size={18} className="animate-pulse" />
+                              </div>
+                              <span className="text-[10px] font-bold text-navy uppercase tracking-[0.2em]">Savings Forecast</span>
+                            </div>
+                            <Badge color="indigo">Validated Estimate</Badge>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="p-4 bg-grey-50 rounded-inner border border-grey-100 transition-all duration-300 hover:bg-white hover:border-indigo/20 hover:shadow-tiny">
+                              <p className="text-[9px] font-bold text-grey-400 uppercase tracking-widest mb-1.5">Annual effort</p>
+                              <div className="flex items-center gap-2">
+                                <Clock size={14} className="text-indigo" />
+                                <span className="font-mono font-bold text-navy text-lg tabular-nums">
+                                  {msg.calculationData.annualHours} <span className="text-[10px] opacity-40 font-sans tracking-tight">hrs</span>
+                                </span>
+                              </div>
+                            </div>
+                            <div className="p-4 bg-grey-50 rounded-inner border border-grey-100 transition-all duration-300 hover:bg-white hover:border-indigo/20 hover:shadow-tiny">
+                              <p className="text-[9px] font-bold text-grey-400 uppercase tracking-widest mb-1.5">FTE Equiv.</p>
+                              <div className="flex items-center gap-2">
+                                <Layers size={14} className="text-indigo" />
+                                <span className="font-mono font-bold text-navy text-lg tabular-nums">
+                                  {msg.calculationData.fteSaving} <span className="text-[10px] opacity-40 font-sans tracking-tight">FTE</span>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="pt-6 mt-2 border-t-2 border-dashed border-grey-100 relative group/total">
+                            <div className="flex justify-between items-end">
+                              <div>
+                                <p className="text-[9px] font-bold text-grey-400 uppercase tracking-[0.2em] mb-2 font-black">Projected Annual Savings</p>
+                                <motion.div
+                                  initial={{ opacity: 0, x: -10 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  className="flex items-baseline gap-2"
+                                >
+                                  <span className="text-4xl font-bold tracking-tighter text-navy tabular-nums">
+                                    {formatCurrency(msg.calculationData.annualSavings)}
+                                  </span>
+                                  <span className="text-[10px] font-bold text-success uppercase tracking-widest">/ year</span>
+                                </motion.div>
+                              </div>
+                              <div className="text-right">
+                                <div className="inline-flex items-center gap-1.5 px-4 py-2 bg-success text-white rounded-pill shadow-lg border border-success/10 text-[10px] font-bold tracking-widest">
+                                  <TrendingUp size={14} /> HIGH IMPACT
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      {/* Interactive Buttons for Validation */}
+                      {idx === history.length - 1 && !isTyping && !completedCase && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.3 }}
+                          className="bg-white/50 backdrop-blur-sm p-6 rounded-card border border-white shadow-xl-kaizen space-y-6"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 bg-indigo text-white rounded-inner flex items-center justify-center shrink-0 shadow-lg ring-4 ring-indigo-lt">
+                              <Target size={20} />
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-bold text-navy">Verify Optimization Node</h4>
+                              <p className="text-xs text-grey-500 font-medium leading-relaxed">
+                                Does this calculation accurately represent the transformation potential?
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <motion.button
+                              whileHover={{ scale: 1.02, y: -2 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => handleSendValue("Yes, it's correct. Proceed with this logic.")}
+                              className="bg-navy text-white py-4 px-6 rounded-btn text-[10px] font-bold uppercase tracking-[0.3em] shadow-xl hover:bg-indigo transition-all flex items-center justify-center gap-3 group relative overflow-hidden"
+                            >
+                              <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                              <CheckCircle2 size={18} className="text-success group-hover:scale-125 transition-transform relative z-10" /> 
+                              <span className="relative z-10">Seems correct</span>
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.02, y: -2 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => handleSendValue("I need to adjust figures, can we review the volume or hours?")}
+                              className="bg-white border-2 border-grey-100 text-grey-400 py-4 px-6 rounded-btn text-[10px] font-bold uppercase tracking-[0.3em] shadow-sm hover:border-indigo hover:text-indigo transition-all flex items-center justify-center gap-3 group"
+                            >
+                              <RefreshCw size={18} className="group-hover:rotate-180 transition-transform duration-500" />
+                              <span>Adjust baseline</span>
+                            </motion.button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
+                  ) : msg.content}
                 </div>
               </div>
             </motion.div>
@@ -1547,7 +1768,9 @@ CASE_COMPLETE JSON for AI:
           {isTyping && (
             <div className="flex justify-start">
               <div className="max-w-[80%] flex gap-4">
-                <div className="w-8 h-8 rounded-pill bg-indigo shrink-0 flex items-center justify-center text-white font-medium text-[10px]">Z</div>
+                <div className="w-8 h-8 rounded-pill bg-white shrink-0 flex items-center justify-center text-white font-medium text-[10px] shadow-sm">
+                  <img src="/logo.png" alt="Z" className="w-6 h-6 object-contain" />
+                </div>
                 <div className="p-4 rounded-card bg-white border border-grey-100 rounded-tl-none flex items-center gap-2 shadow-sm">
                   <div className="w-1.5 h-1.5 bg-indigo-dk rounded-pill animate-bounce" />
                   <div className="w-1.5 h-1.5 bg-indigo-dk rounded-pill animate-bounce [animation-delay:0.2s]" />
@@ -1585,35 +1808,35 @@ CASE_COMPLETE JSON for AI:
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-8">
                   <div>
-                    <h3 className="text-[10px] font-medium text-white/40 mb-2">Initiative Passport</h3>
-                    <h2 className="text-4xl font-medium italic tracking-tighter leading-none">{submittedCase.project_title}</h2>
+                    <h3 className="text-[10px] font-medium text-white/60 mb-2 uppercase tracking-widest">Initiative Passport</h3>
+                    <h2 className="text-4xl font-medium tracking-tighter leading-none text-white">{submittedCase.project_title}</h2>
                   </div>
-                  <div className="w-16 h-16 bg-white/5 rounded-inner flex items-center justify-center border border-white/10">
+                  <div className="w-16 h-16 bg-white/10 rounded-inner flex items-center justify-center border border-white/20">
                     <Rocket className="text-indigo" size={32} />
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-md rounded-inner p-6 mb-8 border border-white/10">
-                  <p className="text-[9px] font-medium text-indigo tracking-widest mb-3 flex items-center gap-2">
-                    <Bot size={12} /> AI Strategy Insight
+                <div className="bg-white/10 backdrop-blur-md rounded-inner p-6 mb-8 border border-white/20">
+                  <p className="text-[9px] font-medium text-white/70 tracking-widest mb-3 flex items-center gap-2 uppercase">
+                    <Bot size={12} className="text-indigo" /> AI Strategy Insight
                   </p>
-                  <p className="text-xl font-medium italic leading-relaxed text-white">
+                  <p className="text-xl font-medium leading-relaxed text-white">
                     "{caseSummary || 'Orchestrating transformation via intelligent automation.'}"
                   </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-6 mb-10 pb-8 border-b border-white/10">
+                <div className="grid grid-cols-3 gap-6 mb-10 pb-8 border-b border-white/20">
                   <div>
-                    <p className="text-[8px] font-medium text-white/30 mb-1">Impact Radius</p>
-                    <p className="text-xs font-medium font-mono tracking-tight">{submittedCase.markets_affected}</p>
+                    <p className="text-[8px] font-medium text-white/60 mb-1 uppercase tracking-widest">Impact Radius</p>
+                    <p className="text-xs font-medium font-mono tracking-tight text-white">{submittedCase.markets_affected}</p>
                   </div>
                   <div>
-                    <p className="text-[8px] font-medium text-white/30 mb-1">Projected ROI</p>
-                    <p className="text-xs font-medium font-mono text-success">{submittedCase.case_type === CaseType.AI ? 'High Strategic' : formatCurrency(submittedCase.annual_fte_cost || 0)}</p>
+                    <p className="text-[8px] font-medium text-white/60 mb-1 uppercase tracking-widest">Projected ROI</p>
+                    <p className="text-xs font-medium font-mono text-success-lt font-bold text-base">{submittedCase.case_type === CaseType.AI ? 'High Strategic' : formatCurrency(submittedCase.annual_fte_cost || 0)}</p>
                   </div>
                   <div>
-                    <p className="text-[8px] font-medium text-white/30 mb-1">Status</p>
-                    <p className="text-xs font-medium tracking-widest text-gold-lt animate-pulse">In Pipeline</p>
+                    <p className="text-[8px] font-medium text-white/60 mb-1 uppercase tracking-widest">Status</p>
+                    <p className="text-xs font-medium tracking-widest text-gold animate-pulse font-bold">IN PIPELINE</p>
                   </div>
                 </div>
 
@@ -1641,7 +1864,7 @@ CASE_COMPLETE JSON for AI:
                   <CheckCircle2 size={32} />
                 </div>
                 <div>
-                  <h3 className="font-medium text-navy text-2xl italic tracking-tighter leading-none">Review Initiative Node</h3>
+                  <h3 className="font-medium text-navy text-2xl tracking-tighter leading-none">Review Initiative Node</h3>
                   <p className="text-[10px] font-medium text-indigo tracking-[0.3em] mt-1.5 tabular-nums">Classification: {completedCase.case_type} Protocol</p>
                 </div>
               </div>
@@ -1650,14 +1873,19 @@ CASE_COMPLETE JSON for AI:
                 {[
                   { label: 'Title', val: completedCase.project_title },
                   { label: 'Dept', val: completedCase.requestor_department },
-                  { label: 'Impact / yr', val: completedCase.case_type === CaseType.AI ? 'N/A' : formatCurrency(completedCase.annual_fte_cost || 0) },
+                  { label: 'AI Intent', val: completedCase.ai_intent },
+                  { label: 'Impact / yr', val: completedCase.case_type === CaseType.AI ? (completedCase.tier_score ? `Score: ${completedCase.tier_score}` : 'Strategic') : formatCurrency(completedCase.annual_fte_cost || 0) },
                   { label: 'Bet', val: completedCase.case_type !== CaseType.AI ? completedCase.strategic_driver : undefined },
-                  { label: 'Deadline', val: completedCase.case_type !== CaseType.AI ? completedCase.deadline : undefined },
+                  { label: 'Deadline', val: completedCase.deadline },
                   { label: 'Magnitude', val: `${TIER_NAMES[completedCase.tier as string] || completedCase.tier} / ${completedCase.tshirt}` },
                   { label: 'Markets', val: completedCase.markets_affected },
                   { label: 'Outcome', val: completedCase.expected_outcome, full: true },
-                  { label: 'Problem', val: completedCase.problem_statement, full: true },
-                  { label: 'Benefits', val: completedCase.expected_benefits || completedCase.soft_benefits, full: true },
+                  { label: 'Problem / Description', val: completedCase.case_type === CaseType.AI ? completedCase.initiative_description : completedCase.problem_statement, full: true },
+                  { label: 'Benefits', val: completedCase.expected_benefits, full: true },
+                  { label: 'Vol/Mo', val: completedCase.volume_per_month },
+                  { label: 'Hr/Case', val: completedCase.hours_per_case },
+                  { label: 'Seniority', val: completedCase.team_profile },
+                  { label: 'Teams Involved', val: completedCase.teams_involved },
                   { label: 'AI Tool', val: completedCase.ai_tool },
                   { label: 'Model', val: completedCase.ai_model_name },
                   { label: 'Purpose', val: completedCase.intended_purpose },
@@ -1666,12 +1894,12 @@ CASE_COMPLETE JSON for AI:
                   { label: 'Integrations', val: completedCase.system_integrations },
                   { label: 'Human-in-Loop', val: completedCase.human_in_loop },
                   { label: 'Regulated', val: completedCase.regulated_process },
-                  { label: 'Duration', val: completedCase.duration },
-                  { label: 'Teams', val: completedCase.teams_involved },
+                  { label: 'Support Material', val: completedCase.support_material_link, full: true },
+                  { label: 'Context', val: completedCase.additional_context, full: true },
                 ].filter(i => i.val).map((i, idx) => (
-                  <div key={idx} className={`bg-grey-50 p-5 rounded-inner border border-grey-100 ring-1 ring-white/50 group hover:bg-white transition-standard ${i.full ? 'md:col-span-2 lg:col-span-2' : ''}`}>
-                    <p className="text-[8px] font-medium text-grey-400 mb-2 group-hover:text-indigo transition-colors">{i.label}</p>
-                    <p className={`text-[11px] font-medium text-navy italic leading-snug ${i.full ? '' : 'truncate'}`}>{i.val || '---'}</p>
+                  <div key={idx} className={`bg-grey-50 p-5 rounded-inner border border-grey-100 ring-1 ring-white/50 group hover:bg-white transition-all duration-300 ${i.full ? 'md:col-span-2 lg:col-span-2' : ''}`}>
+                    <p className="text-[8px] font-medium text-grey-400 mb-2 group-hover:text-indigo uppercase tracking-widest transition-colors">{i.label}</p>
+                    <p className={`text-[11px] font-medium text-navy leading-snug ${i.full ? '' : 'truncate'}`}>{i.val || '---'}</p>
                   </div>
                 ))}
               </div>
@@ -1698,6 +1926,74 @@ CASE_COMPLETE JSON for AI:
           )}
           <div ref={chatEndRef} />
         </div>
+
+        <AnimatePresence>
+          {showCelebration && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[200] flex items-center justify-center pointer-events-none overflow-hidden"
+            >
+              {/* Backglow */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 0.6, scale: 1.2 }}
+                exit={{ opacity: 0 }}
+                className="absolute w-[600px] h-[600px] bg-indigo-lt blur-[100px] rounded-full"
+              />
+
+              <motion.div
+                initial={{ 
+                  scale: 0.2, 
+                  x: '40vw', 
+                  y: '40vh', 
+                  opacity: 0,
+                  rotate: 45
+                }}
+                animate={{ 
+                  scale: 1, 
+                  x: 0, 
+                  y: 0, 
+                  opacity: 1,
+                  rotate: 0,
+                  transition: { 
+                    type: "spring", 
+                    stiffness: 70, 
+                    damping: 15,
+                    duration: 1.2
+                  }
+                }}
+                exit={{ 
+                  scale: 0.8, 
+                  opacity: 0,
+                  y: -100,
+                  transition: { duration: 0.5 }
+                }}
+                className="flex flex-col items-center relative"
+              >
+                <div className="w-80 h-80 md:w-[400px] md:h-[400px] flex items-center justify-center">
+                  <img 
+                    src="/logo.png" 
+                    alt="Zhdun" 
+                    className="w-full h-full object-contain drop-shadow-[0_35px_35px_rgba(26,29,59,0.3)]" 
+                  />
+                </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8, duration: 0.5 }}
+                  className="text-center"
+                >
+                  <h2 className="text-4xl md:text-6xl font-bold tracking-tighter text-navy flex flex-col items-center gap-2">
+                    <span className="text-indigo block">Received!</span>
+                    <span className="text-2xl md:text-3xl font-medium text-grey-400 tracking-widest uppercase mt-2">Thank you</span>
+                  </h2>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {!completedCase && (
           <div className="p-5 bg-white border-t border-grey-100 flex items-end gap-4 shadow-[0_-4px_10px_-5px_rgba(0,0,0,0.05)]">
@@ -1800,7 +2096,7 @@ function AssessmentPipeline({ cases, onUpdateCase, onSelectDetailedCase }: { cas
                         <span className={`text-[9px] font-medium tracking-wider ${c.case_type === CaseType.AI ? 'text-gold-dk' : 'text-indigo'}`}>
                           {c.case_type} :: {c.tier}
                         </span>
-                        <h4 className="text-sm font-medium text-navy leading-tight italic tracking-tight line-clamp-2">
+                        <h4 className="text-sm font-medium text-navy leading-tight tracking-tight line-clamp-2">
                           {c.project_title}
                         </h4>
                       </div>
@@ -1812,13 +2108,13 @@ function AssessmentPipeline({ cases, onUpdateCase, onSelectDetailedCase }: { cas
                     <div className="grid grid-cols-2 gap-4 mb-4 pt-4 border-t border-grey-50">
                       <div>
                         <p className="text-[8px] font-medium text-grey-300 tracking-wider mb-1">Impact</p>
-                        <p className="text-[10px] font-medium text-indigo italic tabular-nums">
+                        <p className="text-[10px] font-medium text-indigo tabular-nums">
                           {c.case_type === CaseType.AI ? 'Strategic' : formatCurrency(c.annual_fte_cost || 0)}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="text-[8px] font-medium text-grey-300 tracking-wider mb-1">Outcome</p>
-                        <div className="flex items-center justify-end gap-2 text-[10px] font-bold tabular-nums italic">
+                        <div className="flex items-center justify-end gap-2 text-[10px] font-bold tabular-nums">
                            <span className={`text-${getSuggestedOutcome(calculatedScore).color}`}>
                              {getSuggestedOutcome(calculatedScore).text.split(' — ')[0]}
                            </span>
@@ -1830,7 +2126,7 @@ function AssessmentPipeline({ cases, onUpdateCase, onSelectDetailedCase }: { cas
                     <div className="flex items-center justify-between mt-auto pt-4 border-t border-grey-50">
                       <div className="flex items-center gap-1">
                         <p className="text-[8px] font-medium text-grey-300 tracking-wider">Driver:</p>
-                        <p className="text-[9px] font-medium text-navy/70 italic truncate max-w-[100px]">{c.strategic_driver || 'N/A'}</p>
+                        <p className="text-[9px] font-medium text-navy/70 truncate max-w-[100px]">{c.strategic_driver || 'N/A'}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <ArrowRight size={11} className="text-indigo/40" />
@@ -1894,7 +2190,7 @@ function ExecutiveDashboard({ cases }: { cases: UnifiedCase[] }) {
   return (
     <div className="space-y-10 pb-20 font-sans h-full overflow-y-auto pr-2 scrollbar-hide">
       <section>
-        <h3 className="font-medium text-grey-400 text-[10px] italic mb-6">Financial Performance</h3>
+        <h3 className="font-medium text-grey-400 text-[10px] mb-6">Financial Performance</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
              { label: 'Total Benefit', val: formatCurrency(totalBenefit), color: 'indigo', icon: LineChart },
@@ -1909,14 +2205,14 @@ function ExecutiveDashboard({ cases }: { cases: UnifiedCase[] }) {
                 </div>
                 <span className="text-[10px] text-grey-400 font-bold uppercase tracking-wider">{kpi.label}</span>
               </div>
-              <p className="text-2xl font-bold text-navy italic tracking-tight tabular-nums">{kpi.val}</p>
+              <p className="text-2xl font-bold text-navy tracking-tight tabular-nums">{kpi.val}</p>
             </div>
           ))}
         </div>
       </section>
 
       <section>
-        <h3 className="font-medium text-grey-400 text-[10px] mb-6 italic">Portfolio Velocity</h3>
+        <h3 className="font-medium text-grey-400 text-[10px] mb-6">Portfolio Velocity</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {[
              { label: 'Kill Rate', val: killRate + '%', color: 'danger', icon: AlertCircle },
@@ -1931,7 +2227,7 @@ function ExecutiveDashboard({ cases }: { cases: UnifiedCase[] }) {
                 </div>
                 <span className="text-[10px] text-grey-400 font-bold uppercase tracking-wider">{kpi.label}</span>
               </div>
-              <p className="text-2xl font-bold text-navy italic tracking-tight tabular-nums">{kpi.val}</p>
+              <p className="text-2xl font-bold text-navy tracking-tight tabular-nums">{kpi.val}</p>
             </div>
           ))}
         </div>
@@ -1939,7 +2235,7 @@ function ExecutiveDashboard({ cases }: { cases: UnifiedCase[] }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <section className="bg-white border border-grey-100 p-8 rounded-card shadow-sm-kaizen">
-          <h3 className="font-bold text-grey-400 text-[10px] uppercase tracking-[0.2em] mb-8 italic">Submission Funnel</h3>
+          <h3 className="font-bold text-grey-400 text-[10px] uppercase tracking-[0.2em] mb-8">Submission Funnel</h3>
           <div className="space-y-8">
             {funnel.map((step, idx) => (
               <div key={idx} className="group">
@@ -1965,12 +2261,12 @@ function ExecutiveDashboard({ cases }: { cases: UnifiedCase[] }) {
           <section className="bg-navy text-white p-8 rounded-card shadow-lg-kaizen relative overflow-hidden group">
              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo/10 rounded-pill -mt-32 -mr-32 blur-3xl group-hover:bg-indigo/20 transition-standard" />
              <div className="relative z-10">
-               <h3 className="font-bold text-indigo/50 text-[10px] uppercase tracking-[0.2em] mb-8 italic">Node Magnitude</h3>
+               <h3 className="font-bold text-indigo/50 text-[10px] uppercase tracking-[0.2em] mb-8">Node Magnitude</h3>
                <div className="grid grid-cols-2 gap-4">
                   {Object.entries(tshirtMix).map(([size, count]) => (
                     <div key={size} className="bg-white/5 border border-white/10 p-4 rounded-inner flex justify-between items-center">
                        <span className="text-[9px] font-bold uppercase text-white/40 tracking-widest">{size}</span>
-                       <span className="text-xl font-bold italic tabular-nums">{count}</span>
+                       <span className="text-xl font-bold tabular-nums">{count}</span>
                     </div>
                   ))}
                </div>
@@ -1978,14 +2274,14 @@ function ExecutiveDashboard({ cases }: { cases: UnifiedCase[] }) {
           </section>
 
           <section className="bg-white border border-grey-100 p-8 rounded-card shadow-sm-kaizen">
-            <h3 className="font-bold text-grey-400 text-[10px] uppercase tracking-[0.2em] mb-8 italic">Lead Catalyst Unit</h3>
+            <h3 className="font-bold text-grey-400 text-[10px] uppercase tracking-[0.2em] mb-8">Lead Catalyst Unit</h3>
             <div className="flex items-center gap-6">
-               <div className="w-16 h-16 rounded-inner bg-indigo-lt text-indigo flex items-center justify-center font-bold text-2xl shadow-sm italic ring-4 ring-white">
+               <div className="w-16 h-16 rounded-inner bg-indigo-lt text-indigo flex items-center justify-center font-bold text-2xl shadow-sm ring-4 ring-white">
                   {topDept[0].toString().charAt(0)}
                </div>
                <div>
-                  <p className="text-2xl font-bold text-navy italic tracking-tighter uppercase">{topDept[0]}</p>
-                  <p className="text-[10px] font-bold text-grey-400 uppercase tracking-widest mt-1 italic">{topDept[1] as number} Orchestrations Submitted</p>
+                  <p className="text-2xl font-bold text-navy tracking-tighter uppercase">{topDept[0]}</p>
+                  <p className="text-[10px] font-bold text-grey-400 uppercase tracking-widest mt-1">{topDept[1] as number} Orchestrations Submitted</p>
                </div>
             </div>
           </section>

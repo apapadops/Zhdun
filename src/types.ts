@@ -121,6 +121,10 @@ export interface UnifiedCase {
   next_review_date?: string;
   registry_status?: 'pending' | 'active' | 'rejected';
   
+  // Support Material
+  support_material_link?: string;
+  ai_intent?: string;
+  
   // Decision Details
   rejection_reason?: string;
   needs_info_details?: string;
@@ -129,4 +133,9 @@ export interface UnifiedCase {
 export interface Message {
   role: 'user' | 'assistant';
   content: string;
+  calculationData?: {
+    annualHours: string;
+    fteSaving: string;
+    annualSavings: string;
+  };
 }
