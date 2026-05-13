@@ -77,6 +77,29 @@ To avoid ambiguity in the proposal:
 
 All assessment and decision-making remains with the **Betano AI & Transformation team**.
 
+### 2.4 Your Perspective & Recommendations — What We Want to Hear from Avenga
+
+Beyond the operational proposal, Betano is genuinely interested in Avenga's own thinking on this type of engagement. We see this as a collaborative relationship, and we expect Avenga's experience from comparable projects to add real value to how we shape and run the pipeline.
+
+As part of your response, we invite Avenga to address the following:
+
+**Experience from similar engagements**
+- Have you supported similar AI intake or governance pipelines for other clients? What worked well and what didn't?
+- What are the most common failure points you've seen in first-line support models for tech-enabled business processes?
+- Are there patterns in how requestors behave (confusion points, drop-off, recurring misunderstandings) that we should anticipate and design around?
+
+**Suggestions on our current setup**
+- Based on what you've read in this document, do you see any gaps in how we've structured the intake, tiering, or pipeline process?
+- Are there fields we capture that you'd recommend we handle differently, or information we're not capturing that would help triage or support?
+- Do you have a view on what a realistic SLA framework should look like for this type of pipeline, given the volume and variety of requests?
+
+**Operational recommendations**
+- What tooling and channel setup would you recommend for managing first-line support at the volume we're expecting, and why?
+- How would you structure the Avenga team for this engagement — roles, coverage model, escalation internally within Avenga before it reaches the Betano team?
+- What reporting cadence and metrics would you propose to give Betano visibility into the health of the support operation?
+
+We are open to challenge and to learning from your expertise. If there are aspects of our approach that you would do differently based on what you've seen work elsewhere, we want to hear it.
+
 ---
 
 ## 3. How the System Works — End-to-End Flow
