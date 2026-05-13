@@ -34,11 +34,53 @@ Betano operates across multiple markets (Malta, Bulgaria, Romania, Czech Republi
 
 ### Current Status
 
-The pipeline is in **pilot phase** — a limited group of users is submitting real requests. Volume is expected to grow as the tool is rolled out more broadly across the organisation.
+The pipeline is **live and in active use**. Betano is rolling out the tool organisation-wide across all markets and business units. The volume of submissions is expected to be high and to grow rapidly as adoption increases. Avenga's support is needed **immediately** to cover the operational demands of this rollout.
 
 ---
 
-## 2. How the System Works — End-to-End Flow
+## 2. Goals & Avenga's Engagement Scope
+
+This section directly addresses what Avenga needs to prepare their proposal and proceedings.
+
+### 2.1 What Betano Is Trying to Achieve
+
+Betano is doing a **company-wide rollout** of the AI Initiatives Pipeline. The tool is built; the challenge now is operational — ensuring that every person who submits a request gets a responsive, high-quality experience from submission through to decision.
+
+Specifically, Betano needs Avenga to:
+
+1. **Absorb the operational load** of supporting requestors across all markets so the internal Betano AI team can focus on assessment and decision-making
+2. **Ensure submission quality** — catch incomplete or unclear requests before they reach the Betano team's review queue, reducing back-and-forth
+3. **Own requestor communication** throughout the pipeline lifecycle — from first submission to final decision notification
+4. **Scale with the rollout** — the support model must be able to handle growing volume as the tool reaches more departments and markets
+
+### 2.2 What Avenga's Proposal Should Cover
+
+Betano expects Avenga's response to address the following:
+
+| Topic | Detail needed |
+|---|---|
+| **Team structure & capacity** | Who will be on the support team, what seniority, how many FTEs, coverage hours |
+| **Tooling & channel recommendation** | How Avenga proposes to manage incoming support requests (ticketing system, Slack, email, etc.) — Betano has not mandated a specific tool |
+| **Onboarding plan** | How quickly Avenga can be operational given the pipeline is already live |
+| **Quality assurance process** | How Avenga will ensure submission quality before cases reach the Betano review team |
+| **Escalation model** | How Avenga proposes to structure escalation to the Betano AI team |
+| **Reporting & visibility** | What metrics and reporting Avenga will provide to Betano on a regular basis |
+
+### 2.3 What Is Out of Scope for Avenga
+
+To avoid ambiguity in the proposal:
+
+- Avenga **does not** assess or score submissions
+- Avenga **does not** issue GO / HOLD / NO-GO decisions
+- Avenga **does not** have authority to override tiers assigned by the system
+- Avenga **does not** access or manage the Betano internal admin panel (unless separately agreed)
+
+All assessment and decision-making remains with the **Betano AI & Transformation team**.
+
+---
+
+## 3. How the System Works — End-to-End Flow
+
 
 ```
 Requestor opens Zhdun
@@ -78,11 +120,11 @@ The Betano AI & Transformation team operates the pipeline in a **Kanban-style da
 
 ---
 
-## 3. Information We Capture
+## 4. Information We Capture
 
 Every submission captures a structured set of fields through the conversation. Below is a high-level reference of what is collected.
 
-### 3.1 Fields Captured for Every Submission (All Types)
+### 4.1 Fields Captured for Every Submission (All Types)
 
 | Field | What it represents | Example |
 |---|---|---|
@@ -97,7 +139,7 @@ Every submission captures a structured set of fields through the conversation. B
 | **Deadline** | Business deadline, if any | Q3 2026 |
 | **Tier** | Automatically assigned: T1 / T2 / T3 | T2 |
 
-### 3.2 AI Initiative-Specific Fields
+### 4.2 AI Initiative-Specific Fields
 
 Captured when the submission is classified as an **AI Initiative** or **Hybrid**.
 
@@ -113,7 +155,7 @@ Captured when the submission is classified as an **AI Initiative** or **Hybrid**
 | **Regulated Process** | Whether the use case touches regulated workflows | Yes (Financial Crime Compliance) / No |
 | **Expected Benefits** | Strategic benefits expected (for higher-tier initiatives) | Cost Savings, Efficiency Gain, Risk Mitigation |
 
-### 3.3 Optimisation Project-Specific Fields
+### 4.3 Optimisation Project-Specific Fields
 
 Captured when the submission is classified as an **Optimisation Project**.
 
@@ -133,11 +175,11 @@ Captured when the submission is classified as an **Optimisation Project**.
 
 ---
 
-## 4. The Tiering System
+## 5. The Tiering System
 
 Every submission is automatically assigned a **tier** during the conversation. The tier determines the level of scrutiny, governance, and stakeholder involvement required.
 
-### 4.1 Tier Definitions
+### 5.1 Tier Definitions
 
 | Tier | Label | Points | What it means |
 |---|---|---|---|
@@ -145,7 +187,7 @@ Every submission is automatically assigned a **tier** during the conversation. T
 | **T2** | Tactical | 8–14 | Medium scope, department-level impact, some integration complexity, 6–12 month ROI horizon. |
 | **T1** | Strategic | 15–20 | High impact, cross-departmental, touches core systems or regulated processes, significant investment or data risk. |
 
-### 4.2 How the Tier is Calculated (Scoring Criteria)
+### 5.2 How the Tier is Calculated (Scoring Criteria)
 
 The AI assistant silently accumulates a score (0–20) throughout the conversation based on the requestor's answers. **The requestor never sees this score** — they only see the tier label at the end if they review their submission summary.
 
@@ -166,7 +208,7 @@ The score is driven by two categories of criteria:
 - Integrated with production systems → +2
 - Used in a regulated process (AML, KYC, Responsible Gambling) → +2
 
-### 4.3 What Tier Means for Process
+### 5.3 What Tier Means for Process
 
 | Tier | Typical governance path |
 |---|---|
@@ -176,9 +218,9 @@ The score is driven by two categories of criteria:
 
 ---
 
-## 5. Avenga's Role and Responsibilities
+## 6. Avenga's Role and Responsibilities
 
-### 5.1 What Avenga Does
+### 6.1 What Avenga Does
 
 Avenga acts as **first-line support** for the AI Initiatives Pipeline. This means:
 
@@ -190,7 +232,7 @@ Avenga acts as **first-line support** for the AI Initiatives Pipeline. This mean
 | **Needs Info Follow-ups** | When the Betano AI team flags a submission as "Needs Info", Avenga contacts the requestor, explains what's missing, and ensures they provide it |
 | **Status Communication** | Handle inbound "where is my request?" questions and provide accurate, up-to-date status responses |
 
-### 5.2 What Avenga Does NOT Do
+### 6.2 What Avenga Does NOT Do
 
 The following are strictly owned by the **Betano AI & Transformation team**:
 
@@ -203,14 +245,14 @@ If a requestor challenges a tier or a decision outcome, Avenga should acknowledg
 
 ---
 
-## 6. Common Support Scenarios
+## 7. Common Support Scenarios
 
 ### Scenario 1: "What tier am I? Why was I assigned T2 / T1 / T3?"
 
 **Context:** Requestors sometimes see their tier label and want to understand what it means or why they received it.
 
 **How to handle:**
-1. Explain the tier meaning using the table in Section 4.1
+1. Explain the tier meaning using the table in Section 5.1
 2. Explain that the tier is calculated automatically based on the scope, data risk, and estimated impact of the initiative — not a quality judgement
 3. If they feel it's wrong, log the concern and escalate to the Betano AI team. Do not reassign or override the tier yourself.
 
@@ -271,7 +313,7 @@ If a requestor challenges a tier or a decision outcome, Avenga should acknowledg
 
 ---
 
-## 7. Escalation Path
+## 8. Escalation Path
 
 When Avenga cannot resolve a query independently, escalate to the **Betano AI & Transformation team**.
 
@@ -284,7 +326,7 @@ When Avenga cannot resolve a query independently, escalate to the **Betano AI & 
 
 ---
 
-## 8. Key Concepts & Glossary
+## 9. Key Concepts & Glossary
 
 | Term | Definition |
 |---|---|
